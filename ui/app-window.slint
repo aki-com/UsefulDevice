@@ -1,0 +1,26 @@
+import { Button, VerticalBox, ListView } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    in-out property <[{device_name: string,IP_address: string}]> devices: [{device_name: "192.168.0.0",IP_address: "PCname"},{device_name: "192.168.0.6",IP_address: "PCname2"}];
+    background: gray;
+
+    preferred-width: 800px;
+    preferred-height: 600px;
+    min-height: 600px;
+    min-width: 300px;
+    VerticalBox {
+        ListView {
+            for data in devices: Rectangle {
+                preferred-height: 50px;
+                preferred-width: 100%;
+                Button {
+                    width: 100%;
+                    text: data.device_name + "                " + data.IP_address;
+                    clicked => {}
+
+
+                }
+            }
+        }
+    } 
+}
