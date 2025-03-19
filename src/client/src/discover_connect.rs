@@ -5,7 +5,7 @@ use std::{thread, time, collections::HashMap};
 use std::io;
 use std::time::Duration;
 
-pub fn discover_server() -> HashMap<usize, (IpAddr, u16)> {
+pub fn discover_server() -> HashMap<usize, (String,IpAddr, u16)> {
     let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
     let receiver = mdns.browse("_useful_devices._udp.local.").expect("Failed to browse for mDNS services");
 
@@ -22,9 +22,13 @@ pub fn discover_server() -> HashMap<usize, (IpAddr, u16)> {
         if let Ok(event) = receiver.recv_timeout(Duration::from_secs(1)) { // 1秒ごとにチェック
             if let ServiceEvent::ServiceResolved(info) = event {
                 if let Some(ip) = info.get_addresses().iter().next() {
-                    if !servers.values().any(|(existing_ip, _)| existing_ip == ip) {
-                        servers.insert(index, (*ip, 5000)); // ポート5000
-                        println!("{}: {}:{}", index, ip, 5000);
+                    let mut name = info.get_hostname().to_string();
+                    if name.ends_with(".local.") {
+                        name = name.trim_end_matches(".local.").to_string();
+                    }
+                    if !servers.values().any(|(existing_name, existing_ip, _)| existing_ip == ip && existing_name == &name) {
+                        servers.insert(index, (name.clone(), *ip, 5000)); // ポート5000
+                        println!("{}: {} {}", index, name, ip);
                         index += 1;
                     }
                 }
@@ -37,7 +41,7 @@ pub fn discover_server() -> HashMap<usize, (IpAddr, u16)> {
     servers
 }
 
-pub fn select_server(servers: &HashMap<usize, (IpAddr, u16)>) -> Option<(IpAddr, u16)> {
+pub fn select_server(servers: &HashMap<usize, (String, IpAddr, u16)>) -> Option<(IpAddr, u16)> {
     if servers.is_empty() {
         return None;
     }
@@ -48,8 +52,8 @@ pub fn select_server(servers: &HashMap<usize, (IpAddr, u16)>) -> Option<(IpAddr,
         io::stdin().read_line(&mut input).expect("Failed to read input");
 
         if let Ok(choice) = input.trim().parse::<usize>() {
-            if let Some(server) = servers.get(&choice) {
-                return Some(*server);
+            if let Some((_name, ip, port)) = servers.get(&choice) {
+                return Some((*ip, *port));
             }
         }
 
