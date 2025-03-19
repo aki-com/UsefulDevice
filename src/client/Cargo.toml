@@ -7,4 +7,4 @@ name = "ud_client"
 path = "src/lib.rs"
 [dependencies]
 
-mdns-sd ="0.13.2"
+mdns-sd ="0.13.3"

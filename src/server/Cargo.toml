@@ -9,17 +9,19 @@ path = "src/lib.rs"
 
 [dependencies]
 
-mdns-sd ="0.13.2"
+mdns-sd ="0.13.3"
 hostname = "0.4.0"
 local-ip-address = "0.6.3"
 winapi = {version = "0.3.9",features = ["mmeapi"]}
-windows = { version = "0.59.0", features = [
+windows = { version = "0.61.1", features = [
     "Win32_System_Com",
     "Win32_Foundation",
     "Win32_Media_Audio",
     "Win32_Media_Audio_Endpoints",
     "Win32_System_Variant",
 ] }
+
+ windows-volume-control = "0.1.1" 
 
 
 

@@ -1,10 +1,23 @@
 mod server;
-mod shortcut_cmd;
+
+mod device_ctrl;
 // cd src/server; cargo run
 
+
+mod audio_ctrl;
 fn main() {
+    match set_volume(0.5) {  // 50% に設定
+        Ok(_) => println!("音量を変更しました"),
+        Err(e) => eprintln!("エラー: {:?}", e),
+    };
+
+
     server::start_server();
 
-    shortcut_cmd::adjust_volume(30);
-    shortcut_cmd::parse_volume_command("Vad(75)");
+    audio_ctrl::adjust_volume(30);
+    audio_ctrl::parse_volume_command("Vad(75)");
 }
+
+
+
+
