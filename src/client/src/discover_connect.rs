@@ -5,7 +5,7 @@ use std::{thread, time, collections::HashMap};
 use std::io;
 use std::time::Duration;
 
-pub fn discover_servers() -> HashMap<usize, (IpAddr, u16)> {
+pub fn discover_server() -> HashMap<usize, (IpAddr, u16)> {
     let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
     let receiver = mdns.browse("_useful_devices._udp.local.").expect("Failed to browse for mDNS services");
 

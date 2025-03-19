@@ -1,17 +1,24 @@
 mod discover_connect;
-mod shortcut_cmd;
+
 fn main() {   
-    println!("Searching for server...");
+    println!("Searching for servers...");
     
-    if let Some((ip, port)) = discover_connect::discover_server() {
-        println!("Found server at {}:{}", ip, port);
+    let servers = discover_connect::discover_server(); // すべてのサーバーを取得
+
+    if servers.is_empty() {
+        println!("No servers found.");
+        return;
+    }
+
+    if let Some((ip, port)) = discover_connect::select_server(&servers) {
+        println!("Connecting to server at {}:{}", ip, port);
         discover_connect::connect_to_server(ip, port);
         println!("Client connected to server.");
     } else {
-        println!("Server not found.");
+        println!("No server selected.");
     }
-    
-    shortcut_cmd::send_vad_command();
+
+    // shortcut_cmd::send_vad_command();
 
     println!("Client finished execution.");
 }
