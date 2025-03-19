@@ -1,8 +1,22 @@
-import { Button, VerticalBox, ListView } from "std-widgets.slint";
-
+import { Device } from "device_search.slint";
+import { Button, StandardButton ,VerticalBox, ListView } from "std-widgets.slint";
 export component AppWindow inherits Window {
-    in-out property <[{device_name: string,IP_address: string}]> devices: [{device_name: "192.168.0.0",IP_address: "PCname"},{device_name: "192.168.0.6",IP_address: "PCname2"}];
-    background: gray;
+    callback show-settings();
+
+    in-out property <[Device]> name;
+    background: gray; 
+    Button {
+        text: "Search for devices";
+        clicked => {
+            root.show-settings();
+        }
+    }
+}
+
+export component device_search inherits Dialog {
+    
+    in-out property <[Device]> devices_list;
+
 
     preferred-width: 800px;
     preferred-height: 600px;
@@ -10,7 +24,7 @@ export component AppWindow inherits Window {
     min-width: 300px;
     VerticalBox {
         ListView {
-            for data in devices: Rectangle {
+            for data in devices_list: Rectangle {
                 preferred-height: 50px;
                 preferred-width: 100%;
                 Button {
@@ -22,5 +36,5 @@ export component AppWindow inherits Window {
                 }
             }
         }
-    } 
+    }
 }

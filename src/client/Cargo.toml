@@ -1,8 +1,10 @@
 [package]
-name = "PCtest"
+name = "ud_client"
 version = "0.1.0"
 edition = "2021"
-
+[lib]
+name = "ud_client"
+path = "src/lib.rs"
 [dependencies]
 
 mdns-sd ="0.13.2"
