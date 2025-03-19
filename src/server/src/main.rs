@@ -1,5 +1,6 @@
 mod server;
 mod shortcut_cmd;
+// cd src/server; cargo run
 
 fn main() {
     server::start_server();

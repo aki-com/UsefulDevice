@@ -1,4 +1,5 @@
 mod discover_connect;
+//cd src/client; cargo run
 
 fn main() {   
     println!("Searching for servers...");
