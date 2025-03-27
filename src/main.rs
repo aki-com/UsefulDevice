@@ -3,7 +3,7 @@
 
 use std::error::Error;
 use ud_server::server_test;
-use ud_client::client_test;
+use ud_client::{client_test, get_server};
 
 slint::include_modules!();
 
@@ -11,23 +11,27 @@ fn main() -> Result<(), Box<dyn Error>> {
     let ui = AppWindow::new()?;
     server_test();
     client_test(); 
-    let devices = slint::VecModel::from(vec![
+    let device_raw = get_server(); //デバイスの取得
+    println!("{:?}",device_raw);//デバイスの取得
+    //Device型に変更
+    let devices = slint::VecModel::from(device_raw.iter().map(|(key, (name, ip))| {
         Device {
-            device_name: "Device1".into(),
-            IP_address: "192.168.1.1".into(),
-        },
-        Device {
-            device_name: "Device2".into(),
-            IP_address: "192.168.1.2".into(),
-        },
-    ]);
+            device_name: name.clone().into(),
+            IP_address: ip.to_string().into(),
+        }
+    }).collect::<Vec<_>>());
+    //デバイスの最後尾を追加
+    devices.push(Device {
+        device_name: "test".into(),
+        IP_address: "test".into(),
+    });
+
+    //ui.set_name(slint::ModelRc::new(devices));
     ui.on_show_settings(|| {
         let dialog = device_search::new().unwrap();
         dialog.show().unwrap();
     });
-    ui.set_name(slint::ModelRc::new(devices));
-
-    
+    ui.global::<App_Data>().set_devices(slint::ModelRc::new(devices));
 
     //ui.on_○○でslintのイベントを登録する
 

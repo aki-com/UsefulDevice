@@ -1,30 +1,155 @@
 import { Device } from "device_search.slint";
-import { Button, StandardButton ,VerticalBox, ListView } from "std-widgets.slint";
+import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider } from "std-widgets.slint";
+
+
+export global App_Data {
+    in-out property <[Device]> devices:
+        [
+            { device_name: "Device1", IP_address: "i"},
+            { device_name: "Device2", IP_address: "e"},
+            { device_name: "Device3", IP_address: "e"},
+            { device_name: "Device4", IP_address: "e"},
+            { device_name: "Device5", IP_address: "e"},
+            ];
+}
+
+
+
 export component AppWindow inherits Window {
     callback show-settings();
+    callback ButtonSize();
 
-    in-out property <[Device]> name;
+    in-out property <length> Square_size: (root.width > root.height) ? root.height : root.width;
+    in-out property <[Device]> name <=> App_Data.devices;
     background: gray; 
-    Button {
-        text: "Search for devices";
-        clicked => {
-            root.show-settings();
+    preferred-width: 100%;
+    preferred-height: 100%;
+    min-height: 600px;
+    min-width: 300px;
+    max-width: 1920px;  // 一般的な最大値（フルHD）
+    max-height: 1080px; // 一般的な最大値（フルHD）
+    VerticalBox {
+        alignment: center;
+        HorizontalBox {
+            height: Square_size * 0.075;
+            width: Square_size * 0.075;
+            VerticalBox { 
+
+                Button {       
+                    width: Square_size * 0.075;
+                    height: Square_size * 0.075;
+                    text: App_Data.devices[0].device_name;
+                    clicked => {
+                        root.show-settings();
+                    }
+                }
+            }
+        }
+        HorizontalBox {
+            VerticalBox {
+                width: Square_size * 0.055;
+            }
+            VerticalBox{
+
+                HorizontalBox {
+                    height: Square_size * 0.25;
+                    Button {
+                        text: "Task Manager";
+                       width: Square_size * 0.25;
+        
+                        clicked => {
+                        }
+                    }
+                    Button {
+                        text: "Undo";
+                       width: Square_size * 0.25;
+        
+        
+                        clicked => {
+                            root.show-settings();
+                        }
+                    }
+                    Button {
+                        text: "Redo";
+                       width: Square_size * 0.25;
+        
+        
+                        clicked => {
+                        }
+                    }
+                }
+                 HorizontalBox {
+                    height: Square_size * 0.25;
+                    Button {
+                        text: "All";
+                       width: Square_size * 0.25;
+                        
+                        clicked => {
+                        }
+                    }
+                    Button {
+                        text: "Save";
+                       width: Square_size * 0.25;
+                        
+                        clicked => {
+                        }
+                    }
+                    Button {
+                        text: "Ptr Sc";
+                       width: Square_size * 0.25;
+                        
+                        clicked => {
+                        }
+                    }
+                }
+                HorizontalBox {
+                    height: Square_size * 0.25;
+                    Button {
+                        text: "X";
+                       width: Square_size * 0.25;
+                        
+                        clicked => {
+        
+                        }
+                    }
+                    Button {
+                        text: "Copy";
+                       width: Square_size * 0.25;
+                        
+                        clicked => {
+                        }
+                    }
+                    Button {
+                        text: "Paste";
+                       width: Square_size * 0.25;
+                        
+                        clicked => {
+                        }
+                    }
+                }
+                HorizontalBox {
+                    alignment: center;
+                    Slider {
+                        width: Square_size * 0.75;
+                        height: 20px;
+                        value: 0.5;
+                    }
+                }
+            }
         }
     }
 }
 
 export component device_search inherits Dialog {
-    
-    in-out property <[Device]> devices_list;
-
+    in-out property <[Device]> aname <=>App_Data.devices;
 
     preferred-width: 800px;
     preferred-height: 600px;
     min-height: 600px;
     min-width: 300px;
-    VerticalBox {
+    HorizontalBox {
         ListView {
-            for data in devices_list: Rectangle {
+            for data in aname: Rectangle {
                 preferred-height: 50px;
                 preferred-width: 100%;
                 Button {
