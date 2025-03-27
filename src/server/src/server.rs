@@ -5,6 +5,7 @@ use std::net::{IpAddr, Ipv4Addr};
 use local_ip_address::list_afinet_netifas;
 use std::net::TcpListener;
 use std::io::Write;
+use crate::device_ctrl::handle_client;
 
 pub fn start_server() {
     let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
@@ -54,6 +55,7 @@ pub fn start_server() {
                     Ok(mut stream) => {
                         println!("Connection established with: {}", stream.peer_addr().unwrap());
                         let _ = stream.write_all(b"Hello from server!");  // write_allを使用
+                        handle_client(stream);
                     }
                     Err(e) => {
                         eprintln!("Failed to accept connection: {}", e);

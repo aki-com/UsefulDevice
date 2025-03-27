@@ -3,11 +3,7 @@ mod device_ctrl;
 // cd src/server; cargo run
 
 fn main() {
-
-
-
     server::start_server();
-    device_ctrl::vol();
 }
 
 
