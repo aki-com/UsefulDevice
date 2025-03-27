@@ -27,7 +27,7 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
     }
 }*/
 
-fn send_key_combination(keys: &[VIRTUAL_KEY]) {
+pub fn send_key_combination(keys: &[VIRTUAL_KEY]) {
     let len = keys.len() * 2;
     let mut inputs = vec![INPUT {
         r#type: INPUT_KEYBOARD,
