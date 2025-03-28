@@ -1,6 +1,6 @@
 mod discover_connect;
 mod send_cmdID;
-
+//cd src/client;cargo run
 fn main() {
     let servers = discover_connect::discover_server();
     if let Some((ip, port)) = discover_connect::select_server(&servers) {

@@ -24,24 +24,29 @@ fn device_get() -> ModelRc<Device> {
     slint::ModelRc::new(devices)
 }
 
+use std::rc::Rc;
+use std::cell::RefCell;
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let ui = AppWindow::new()?;
-    ui.on_show_settings(move|| {
-        let dialog = device_search::new().unwrap();
-        dialog.set_devices(device_get());
+    let ui = Rc::new(RefCell::new(AppWindow::new()?));
+    /*ui.on_show_settings(|| {
+        let dialog = Rc::new(device_search::new().unwrap());
+        
+        let dialog_clone = dialog.clone(); // Clone the Rc pointer
+        dialog.on_list_update(move || {
+            dialog_clone.set_devices(device_get())
+        });
+        
         dialog.show().unwrap();
-
-
+    });*/
+    let ui_clone = ui.clone();
+    ui.borrow().on_list_update(move || {
+        ui_clone.borrow().set_devices(device_get());
     });
-    
-   // ui.set_name(slint::ModelRc::new(devices));
-//    ui.global::<App_Data>().set_devices(slint::ModelRc::new(devices));
 
-    //ui.on_○○でslintのイベントを登録する
 
-    
 
-    ui.run()?;
+    ui.borrow().run()?;
 
     Ok(())
 }

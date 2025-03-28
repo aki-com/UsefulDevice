@@ -1,4 +1,4 @@
-//use windows_volume_control::AudioController;
+use windows_volume_control::AudioController;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 
@@ -7,7 +7,7 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
     INPUT, KEYBDINPUT, SendInput, KEYEVENTF_KEYUP, VK_CONTROL, VIRTUAL_KEY, VK_MENU,
     INPUT_TYPE, INPUT_KEYBOARD, KEYBD_EVENT_FLAGS
 };
-/*pub fn vol(){
+pub fn set_volume(value: f32){
     unsafe {
                 
         let mut controller = AudioController::init(None);
@@ -16,16 +16,17 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
         controller.GetAllProcessSessions();
         let test = controller.get_all_session_names();
 
-        println!("{:?}",test);
+        /*println!("{:?}",test);
         let discord_session = controller.get_session_by_name("Discord".to_string());
         println!("{:?}",discord_session.unwrap().getVolume());
-        discord_session.unwrap().setVolume(0.5);
-
+        discord_session.unwrap().setVolume(0.5);*/
+        println!("{:?}",test);
         let master_volume = controller.get_session_by_name("master".to_string());
         println!("{:?}",master_volume.unwrap().getVolume());
-        master_volume.unwrap().setVolume(0.5);
+        master_volume.unwrap().setVolume(value);
+        println!("音量を{}に設定しました", value);
     }
-}*/
+}
 
 pub fn send_key_combination(keys: &[VIRTUAL_KEY]) {
     let len = keys.len() * 2;
@@ -94,6 +95,16 @@ pub fn handle_client(mut stream: TcpStream) {
                 println!("Received command: {}", received);
 
                 match received.as_str() {
+                    _ if received.starts_with("volume ") => {
+                        let volume_str = &received[7..]; // "volume "の後の部分を取得
+                        if let Ok(volume_value) = volume_str.trim().parse::<f32>() {
+                            set_volume(volume_value);
+                            let _ = stream.write(b"Volume adjusted\n");
+                        } else {
+                            let _ = stream.write(b"Invalid volume value\n");
+                        }
+                    }
+
                     "1" => {
                         println!("Command 1: Ctrl+C");
                         //ここにCtrl+Cの処理を書く
