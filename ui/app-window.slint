@@ -14,14 +14,12 @@ export global App_Data {
 }
 
 
-
 export component AppWindow inherits Window {
     callback show-settings();
     callback ButtonSize();
 
     in-out property <length> Square_size: (root.width > root.height) ? root.height : root.width;
-    in-out property <[Device]> name <=> App_Data.devices;
-    background: gray; 
+    in-out property <[Device]> name;
     preferred-width: 100%;
     preferred-height: 100%;
     min-height: 600px;
@@ -38,7 +36,7 @@ export component AppWindow inherits Window {
                 Button {       
                     width: Square_size * 0.075;
                     height: Square_size * 0.075;
-                    text: App_Data.devices[0].device_name;
+                    text: name[0].device_name + "                " + name[0].IP_address;
                     clicked => {
                         root.show-settings();
                     }
@@ -141,15 +139,17 @@ export component AppWindow inherits Window {
 }
 
 export component device_search inherits Dialog {
-    in-out property <[Device]> aname <=>App_Data.devices;
+    in-out property <[Device]> devices;
+    callback list_update();
 
     preferred-width: 800px;
     preferred-height: 600px;
     min-height: 600px;
     min-width: 300px;
+
     HorizontalBox {
         ListView {
-            for data in aname: Rectangle {
+            for data in devices: Rectangle {
                 preferred-height: 50px;
                 preferred-width: 100%;
                 Button {
@@ -159,6 +159,13 @@ export component device_search inherits Dialog {
 
 
                 }
+            }
+
+        }
+        Button {
+            text: "更新";
+            clicked => {
+                root.list_update();
             }
         }
     }
