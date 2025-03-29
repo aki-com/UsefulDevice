@@ -15,9 +15,8 @@ export global App_Data {
 
 
 export component AppWindow inherits Window {
-    callback show-settings();
-    callback ButtonSize();
     callback list_update();
+    callback server_connecting(int);
 
     in-out property <length> Square_size: (root.width > root.height) ? root.height : root.width;
     in-out property <[Device]> devices;
@@ -45,7 +44,6 @@ export component AppWindow inherits Window {
             
             
                             clicked => {
-                                root.show-settings();
                             }
                         }
                         Button {
@@ -127,7 +125,9 @@ export component AppWindow inherits Window {
                         Button {
                             width: 100%;
                             text: data.device_name + "                " + data.IP_address;
-                            clicked => {}
+                            clicked => {
+                                root.server_connecting(1);
+                            }
         
         
                         }

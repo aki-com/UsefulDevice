@@ -40,8 +40,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         dialog.show().unwrap();
     });*/
     let ui_clone = ui.clone();
+    ui_clone.borrow().set_devices(device_get());
     ui.borrow().on_list_update(move || {
         ui_clone.borrow().set_devices(device_get());
+    });
+
+    ui.borrow().on_server_connecting(|| {
+        let dialog = Rc::new(device_search::new().unwrap());
+        dialog.set_devices(device_get());
+        dialog.show().unwrap();
     });
 
 
