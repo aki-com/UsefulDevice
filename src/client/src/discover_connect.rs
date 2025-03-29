@@ -14,11 +14,11 @@ pub fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
 
     println!("Searching for servers...");
 
-    let timeout = Duration::from_secs(5);
+    let timeout = Duration::from_secs_f32(0.5);
     let start_time = Instant::now();
 
     while start_time.elapsed() < timeout {
-        if let Ok(event) = receiver.recv_timeout(Duration::from_secs(1)) {
+        if let Ok(event) = receiver.recv_timeout(Duration::from_secs_f32(0.5)) {
             if let ServiceEvent::ServiceResolved(info) = event {
                 if let Some(ip) = info.get_addresses().iter().next() {
                     let mut name = info.get_hostname().to_string();
