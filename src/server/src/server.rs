@@ -20,14 +20,33 @@ pub fn start_server() {
 
     // ローカルIPv4アドレスを取得
     let ip: Option<IpAddr> = list_afinet_netifas()
-        .expect("Failed to get local interfaces")
-        .into_iter()
-        .find_map(|(_, ip)| match ip {
-            IpAddr::V4(ipv4) => Some(IpAddr::V4(ipv4)), // IPv4のみ取得
-            _ => None,
-        });
+    .expect("Failed to get local interfaces")
+    .into_iter()
+    .find_map(|(_, ip)| match ip {
+        IpAddr::V4(ipv4) if ipv4.octets()[0] == 192 && ipv4.octets()[1] == 168 => Some(IpAddr::V4(ipv4)),
+        _ => None,
+    })
+    .or_else(|| {
+        list_afinet_netifas()
+            .expect("Failed to get local interfaces")
+            .into_iter()
+            .find_map(|(_, ip)| match ip {
+                IpAddr::V4(ipv4) if ipv4.octets()[0] == 10 => Some(IpAddr::V4(ipv4)),
+                _ => None,
+            })
+    })
+    .or_else(|| {
+        list_afinet_netifas()
+            .expect("Failed to get local interfaces")
+            .into_iter()
+            .find_map(|(_, ip)| match ip {
+                IpAddr::V4(ipv4) => Some(IpAddr::V4(ipv4)), // 何でもいいからIPv4を取得
+                _ => None,
+            })
+    });
 
-    let ip = ip.expect("No IPv4 address found");
+    let ip = ip.expect("No suitable IPv4 address found");
+    println!("Selected IP: {}", ip);
 
     println!("Local IP: {}", ip);
 

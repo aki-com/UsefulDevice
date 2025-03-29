@@ -6,9 +6,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ud_client = {path = "src/client" }
-ud_server = {path = "src/server" }
-slint = "1.10.0"
+#ud_client = {path = "src/client" }
+#ud_server = {path = "src/server" }
+slint = { version = "1.10.0", features = ["backend-android-activity-06"] }
+android-activity = "0.6.0"
+
+[lib]
+crate-type = ["cdylib"]
 
 [build-dependencies]
 slint-build = "1.10.0"
+
+#[package.metadata.android.signing.release]
+#path = "mcrandroid.jks"  # Keystore のパス（Cargo.toml のあるディレクトリ基準）
+#keystore_password = "789632145"  # Keystore のパスワード
+#key_alias = "my-key-alias"  # Keystore の alias
+#key_password = "789632145"  # キーのパスワード
