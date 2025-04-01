@@ -16,7 +16,7 @@ export global App_Data {
 
 export component AppWindow inherits Window {
     callback list_update();
-    callback server_connecting(int);
+    callback server_connecting(Device);
 
     in-out property <length> Square_size: (root.width > root.height) ? root.height : root.width;
     in-out property <[Device]> devices;
@@ -28,8 +28,9 @@ export component AppWindow inherits Window {
         Tab {
             VerticalBox {
                 alignment: center;
-                VerticalBox{
+
                     HorizontalBox {
+                        alignment: center;
                         height: Square_size * 0.25;
                         Button {
                             text: "Task Manager";
@@ -56,6 +57,7 @@ export component AppWindow inherits Window {
                         }
                     }
                     HorizontalBox {
+                        alignment: center;
                         height: Square_size * 0.25;
                         Button {
                             text: "All";
@@ -80,6 +82,7 @@ export component AppWindow inherits Window {
                         }
                     }
                     HorizontalBox {
+                        alignment: center;
                         height: Square_size * 0.25;
                         Button {
                             text: "X";
@@ -111,7 +114,7 @@ export component AppWindow inherits Window {
                             height: 20px;
                             value: 0.5;
                         }
-                    }
+                    
                 }
             }
         }
@@ -126,7 +129,7 @@ export component AppWindow inherits Window {
                             width: 100%;
                             text: data.device_name + "                " + data.IP_address;
                             clicked => {
-                                root.server_connecting(1);
+                                root.server_connecting(data);
                             }
         
         

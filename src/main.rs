@@ -1,21 +1,27 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::collections::HashMap;
 use std::error::Error;
 use slint::{Model, ModelRc};
 use ud_server::server_test;
-use ud_client::{client_test, get_server};
+use ud_client::{chenge_server, get_server};
 
 slint::include_modules!();
 
 
 
 
-
+use std::net::IpAddr;
 
 fn device_get() -> ModelRc<Device> {
     let device_raw = get_server(); //デバイスの取得
-    let devices = slint::VecModel::from(device_raw.iter().map(|(key, (name, ip))| {
+
+    let device: HashMap<usize, (String, IpAddr)> = device_raw.iter().map(|(&key, (name, ip, _port))| { // port は無視
+        (key, (name.clone(), *ip))
+    })
+    .collect();
+    let devices = slint::VecModel::from(device.iter().map(|(key, (name, ip))| {
         Device {
             device_name: name.clone().into(),
             IP_address: ip.to_string().into(),
@@ -45,10 +51,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         ui_clone.borrow().set_devices(device_get());
     });
 
-    ui.borrow().on_server_connecting(|| {
-        let dialog = Rc::new(device_search::new().unwrap());
-        dialog.set_devices(device_get());
-        dialog.show().unwrap();
+    ui.borrow().on_server_connecting(|index| {
+    let Device{device_name, IP_address} = index;
+        let name = device_name.to_string();
+        let ip :IpAddr = IP_address.to_string().parse().unwrap();
+        let port = 5000;
+        println!("Connecting to server: {} {} {}", name, ip, port);
+        chenge_server((name.clone(), ip, port));
+
+
     });
 
 
