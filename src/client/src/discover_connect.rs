@@ -1,9 +1,10 @@
 use mdns_sd::{ServiceDaemon, ServiceEvent};
-use std::net::{TcpStream, IpAddr};
+use std::net::{IpAddr};
 use std::io::{Read, Write};
 use std::{thread, time, collections::HashMap};
 use std::io;
 use std::time::{Duration, Instant};
+use tokio::net::TcpStream;
 
 pub fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
     let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
@@ -58,9 +59,9 @@ pub fn select_server(servers: &HashMap<usize, (String, IpAddr, u16)>) -> Option<
 }
 
 // 接続だけを行う
-pub fn connect_to_server(ip: IpAddr, port: u16) -> Option<TcpStream> {
+pub async fn connect_to_server(ip: IpAddr, port: u16) -> Option<TcpStream> {
     println!("Trying to connect to server at {}:{}", ip, port);
-    match TcpStream::connect((ip, port)) {
+    match tokio::net::TcpStream::connect((ip, port)).await {
         Ok(stream) => {
             println!("Connected to server at {}:{}", ip, port);
             Some(stream)

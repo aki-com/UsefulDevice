@@ -7,6 +7,7 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
     INPUT, KEYBDINPUT, SendInput, KEYEVENTF_KEYUP, VK_CONTROL, VIRTUAL_KEY, VK_MENU,
     INPUT_TYPE, INPUT_KEYBOARD, KEYBD_EVENT_FLAGS
 };
+
 pub fn set_volume(value: f32){
     unsafe {
                 
