@@ -10,7 +10,7 @@ ud_client = {path = "src/client" }
 #ud_server = {path = "src/server" }
 slint = { version = "1.10.0", features = ["backend-android-activity-06"] }
 android-activity = "0.6.0"
-
+tokio = { version = "1.31", features = ["full"] }
 [lib]
 crate-type = ["cdylib"]
 

@@ -1,6 +1,8 @@
 use windows_volume_control::AudioController;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
+use tokio::time;
+use tokio::sync::MutexGuard;
 
 use std::mem;
 use windows::Win32::UI::Input::KeyboardAndMouse::{
@@ -82,7 +84,7 @@ fn send_alt_tab() {
     send_key_combination(&[VK_MENU, VIRTUAL_KEY(0x09)]);
 }
 
-pub async fn handle_client(mut stream: TcpStream) {
+pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
     let mut buffer = [0; 512];
 
     loop {
@@ -129,11 +131,9 @@ pub async fn handle_client(mut stream: TcpStream) {
                     }
                     "5" => {
                         println!("Command 5: Alt+Tab");
-                        //ここにAlt+Tabの処理を書く
-                        std::thread::sleep(std::time::Duration::from_secs(5));
+                        time::sleep(time::Duration::from_secs(5)).await;
                         send_alt_tab();
-                        //1️秒待つAlt+Tabを送信
-                        std::thread::sleep(std::time::Duration::from_secs(5));
+                        time::sleep(time::Duration::from_secs(5)).await;
                         println!("Command 5: Alt+Tab");
                         send_alt_tab();
                     }

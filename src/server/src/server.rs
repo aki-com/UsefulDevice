@@ -6,6 +6,8 @@ use local_ip_address::list_afinet_netifas;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::io::AsyncWriteExt;
 use crate::device_ctrl::handle_client;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 pub async fn start_server() {
     let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
@@ -69,10 +71,21 @@ pub async fn start_server() {
     let listener = TcpListener::bind((ip, 5000)).await.unwrap();
     println!("Server is listening on {}:5000", ip);
 
-    while let Ok((mut stream, addr)) = listener.accept().await {
+    while let Ok((stream, addr)) = listener.accept().await {
         println!("Connection established with: {}", addr);
-        let _ = stream.write_all(b"Hello from server!").await;
-        handle_client(stream);
+    
+        let stream: Arc<Mutex<TcpStream>> = Arc::new(Mutex::new(stream));
+    
+        {
+            let mut locked_stream = stream.lock().await;
+            let _ = locked_stream.write_all(b"Hello from server!").await;
+        }
+    
+        let stream_clone: Arc<Mutex<TcpStream>> = Arc::clone(&stream); // `stream` の型は `Arc<Mutex<TcpStream>>`
+        
+        tokio::spawn(async move {
+            let _ = handle_client(stream_clone.lock().await).await;
+        });
     }
 
     // サービスを維持
