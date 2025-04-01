@@ -1,13 +1,13 @@
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 use hostname;
 use std::collections::HashMap;
-use std::net::{IpAddr, Ipv4Addr};
+use std::net::IpAddr;
 use local_ip_address::list_afinet_netifas;
-use std::net::TcpListener;
-use std::io::Write;
+use tokio::net::{TcpListener, TcpStream};
+use tokio::io::AsyncWriteExt;
 use crate::device_ctrl::handle_client;
 
-pub fn start_server() {
+pub async fn start_server() {
     let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
 
     // デバイスの名前を取得
@@ -66,25 +66,13 @@ pub fn start_server() {
     println!("mDNS service registered: {} on {}", device_name, ip);
 
     // サーバーのポート5000でリッスン開始
-    match TcpListener::bind((ip, 5000)) {
-        Ok(listener) => {
-            println!("Server is listening on {}:5000", ip);
-            for stream in listener.incoming() {
-                match stream {
-                    Ok(mut stream) => {
-                        println!("Connection established with: {}", stream.peer_addr().unwrap());
-                        let _ = stream.write_all(b"Hello from server!");  // write_allを使用
-                        handle_client(stream);
-                    }
-                    Err(e) => {
-                        eprintln!("Failed to accept connection: {}", e);
-                    }
-                }
-            }
-        }
-        Err(e) => {
-            eprintln!("Failed to bind to port 5000: {}", e);
-        }
+    let listener = TcpListener::bind((ip, 5000)).await.unwrap();
+    println!("Server is listening on {}:5000", ip);
+
+    while let Ok((mut stream, addr)) = listener.accept().await {
+        println!("Connection established with: {}", addr);
+        let _ = stream.write_all(b"Hello from server!").await;
+        handle_client(stream);
     }
 
     // サービスを維持

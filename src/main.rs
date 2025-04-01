@@ -4,9 +4,9 @@
 use std::collections::HashMap;
 use std::error::Error;
 use slint::{Model, ModelRc};
-use ud_server::server_test;
-use ud_client::{chenge_server, get_server};
-
+//use ud_server::server_test;
+use ud_client::{change_server, get_server};
+use tokio::net::TcpStream;
 slint::include_modules!();
 
 
@@ -33,9 +33,34 @@ fn device_get() -> ModelRc<Device> {
 use std::rc::Rc;
 use std::cell::RefCell;
 
-fn main() -> Result<(), Box<dyn Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
     let ui = Rc::new(RefCell::new(AppWindow::new()?));
-    /*ui.on_show_settings(|| {
+
+    let ui_clone = ui.clone();
+    ui_clone.borrow().set_devices(device_get());
+    ui.borrow().on_list_update(move || {
+        ui_clone.borrow().set_devices(device_get());
+    });
+
+    ui.borrow().on_server_connecting(|index| {
+        let Device { device_name, IP_address } = index;
+        let name = device_name.to_string();
+        let ip: IpAddr = IP_address.to_string().parse().unwrap();
+        let port = 5000;
+        println!("Connecting to server: {} {} {}", name, ip, port);
+        
+        // `tokio::spawn` を使って非同期処理として `change_server` を実行
+        tokio::spawn(async move {
+            change_server((name.clone(), ip, port)).await;
+        });
+    });
+
+    ui.borrow().run()?;
+    Ok(())
+}
+
+/*ui.on_show_settings(|| {
         let dialog = Rc::new(device_search::new().unwrap());
         
         let dialog_clone = dialog.clone(); // Clone the Rc pointer
@@ -45,26 +70,3 @@ fn main() -> Result<(), Box<dyn Error>> {
         
         dialog.show().unwrap();
     });*/
-    let ui_clone = ui.clone();
-    ui_clone.borrow().set_devices(device_get());
-    ui.borrow().on_list_update(move || {
-        ui_clone.borrow().set_devices(device_get());
-    });
-
-    ui.borrow().on_server_connecting(|index| {
-    let Device{device_name, IP_address} = index;
-        let name = device_name.to_string();
-        let ip :IpAddr = IP_address.to_string().parse().unwrap();
-        let port = 5000;
-        println!("Connecting to server: {} {} {}", name, ip, port);
-        chenge_server((name.clone(), ip, port));
-
-
-    });
-
-
-
-    ui.borrow().run()?;
-
-    Ok(())
-}

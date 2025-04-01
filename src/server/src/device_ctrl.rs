@@ -1,6 +1,6 @@
 use windows_volume_control::AudioController;
-use std::io::{Read, Write};
-use std::net::TcpStream;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::TcpStream;
 
 use std::mem;
 use windows::Win32::UI::Input::KeyboardAndMouse::{
@@ -82,11 +82,11 @@ fn send_alt_tab() {
     send_key_combination(&[VK_MENU, VIRTUAL_KEY(0x09)]);
 }
 
-pub fn handle_client(mut stream: TcpStream) {
+pub async fn handle_client(mut stream: TcpStream) {
     let mut buffer = [0; 512];
 
     loop {
-        match stream.read(&mut buffer) {
+        match stream.read(&mut buffer).await {
             Ok(0) => {
                 println!("Client disconnected");
                 break;
@@ -100,9 +100,9 @@ pub fn handle_client(mut stream: TcpStream) {
                         let volume_str = &received[7..]; // "volume "の後の部分を取得
                         if let Ok(volume_value) = volume_str.trim().parse::<f32>() {
                             set_volume(volume_value);
-                            let _ = stream.write(b"Volume adjusted\n");
+                            let _ = stream.write_all(b"Volume adjusted\n").await;
                         } else {
-                            let _ = stream.write(b"Invalid volume value\n");
+                            let _ = stream.write_all(b"Invalid volume value\n").await;
                         }
                     }
 
@@ -118,7 +118,7 @@ pub fn handle_client(mut stream: TcpStream) {
                     }
                     "3" => {
                         println!("Command 3: Performing shutdown procedure");
-                        let _ = stream.write(b"Shutting down device...\n");
+                        let _ = stream.write_all(b"Shutting down device...\n").await;
                         // breakなどで接続を閉じる
                         break;
                     }
@@ -139,7 +139,7 @@ pub fn handle_client(mut stream: TcpStream) {
                     }
                     _ => {
                         println!("Unknown command received");
-                        let _ = stream.write(b"Unknown command\n");
+                        let _ = stream.write_all(b"Unknown command\n").await;
                     }
                 }
             }
