@@ -7,6 +7,9 @@ use slint::{Model, ModelRc};
 //use ud_server::server_test;
 use ud_client::{change_server, get_server};
 use tokio::net::TcpStream;
+use std::rc::Rc;
+use std::cell::RefCell;
+
 slint::include_modules!();
 
 
@@ -30,8 +33,7 @@ fn device_get() -> ModelRc<Device> {
     slint::ModelRc::new(devices)
 }
 
-use std::rc::Rc;
-use std::cell::RefCell;
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

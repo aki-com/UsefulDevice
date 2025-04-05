@@ -2,17 +2,20 @@ use discover_connect::discover_server;
 use std::collections::HashMap;
 use std::net::IpAddr;
 use tokio::net::TcpStream;
-
+use std::sync::Arc;
 mod discover_connect;
 mod send_cmdID;
+use crate::discover_connect::ServerMap;
+use tokio::sync::RwLock;
 
 pub fn client_test(){
     println!("client_test");
 }
 
-pub fn get_server() -> HashMap<usize, (String, IpAddr, u16)> {
-    discover_server()
-
+pub async fn get_server() -> ServerMap {
+    let servers: ServerMap = Arc::new(RwLock::new(HashMap::new()));
+    discover_server(servers.clone()).await; // 非同期呼び出し
+    servers
 }
 
 pub async fn change_server(server_map: (String, IpAddr, u16)) {

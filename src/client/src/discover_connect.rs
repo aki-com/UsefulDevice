@@ -4,38 +4,55 @@ use std::{thread, time, collections::HashMap};
 use std::io;
 use std::time::{Duration, Instant};
 use tokio::net::TcpStream;
+use tokio::sync::RwLock;
+use tokio::task;
+use tokio::time::sleep;
+use std::sync::Arc;
 
-pub fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
+
+pub type ServerMap = Arc<RwLock<HashMap<usize, (String, IpAddr, u16)>>>;
+
+pub async fn discover_server(servers: ServerMap) {
     let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
-    let receiver = mdns.browse("_useful_devices._udp.local.").expect("Failed to browse for mDNS services");
+    let receiver = mdns
+        .browse("_useful_devices._udp.local.")
+        .expect("Failed to browse for mDNS services");
 
-    let mut servers = HashMap::new();
     let mut index = 1;
 
-    println!("Searching for servers...");
-
-    let timeout = Duration::from_secs_f32(1.5); // タイムアウトを2秒に
-    let start_time = Instant::now();
-
-    while start_time.elapsed() < timeout {
-        if let Ok(event) = receiver.recv_timeout(Duration::from_secs_f32(0.5)) {
-            if let ServiceEvent::ServiceResolved(info) = event {
+    loop {
+        // 0.5秒待機（recv_timeout相当）
+        match task::spawn_blocking({
+            let receiver = receiver.clone();
+            move || receiver.recv_timeout(Duration::from_secs_f32(0.5))
+        })
+        .await
+        {
+            Ok(Ok(ServiceEvent::ServiceResolved(info))) => {
                 if let Some(ip) = info.get_addresses().iter().next() {
                     let mut name = info.get_hostname().to_string();
                     if name.ends_with(".local.") {
                         name = name.trim_end_matches(".local.").to_string();
                     }
-                    if !servers.values().any(|(n, existing_ip, _)| existing_ip == ip && n == &name) {
-                        servers.insert(index, (name.clone(), *ip, 5000)); 
+
+                    let mut servers_lock = servers.write().await;
+                    let exists = servers_lock.values().any(|(n, existing_ip, _)| {
+                        existing_ip == ip && n == &name
+                    });
+
+                    if !exists {
+                        servers_lock.insert(index, (name.clone(), *ip, 5000));
                         println!("{}: {} {}", index, name, ip);
                         index += 1;
                     }
                 }
             }
+            _ => {} // タイムアウトまたはエラーは無視
         }
-    }
 
-    servers
+        // ループ間隔（あまり詰めすぎない）
+        sleep(Duration::from_millis(100)).await;
+    }
 }
 
 pub fn select_server(servers: &HashMap<usize, (String, IpAddr, u16)>) -> Option<(IpAddr, u16)> {
