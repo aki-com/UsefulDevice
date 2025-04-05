@@ -14,7 +14,7 @@ pub fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
 
     println!("Searching for servers...");
 
-    let timeout = Duration::from_secs_f32(2.0); // タイムアウトを2秒に
+    let timeout = Duration::from_secs_f32(1.5); // タイムアウトを2秒に
     let start_time = Instant::now();
 
     while start_time.elapsed() < timeout {
