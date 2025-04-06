@@ -70,21 +70,43 @@ pub async fn start_server() {
     // サーバーのポート5000でリッスン開始
     let listener = TcpListener::bind((ip, 5000)).await.unwrap();
     println!("Server is listening on {}:5000", ip);
+    
+    let current_connection: Arc<Mutex<Option<Arc<Mutex<TcpStream>>>>> = Arc::new(Mutex::new(None));
 
     while let Ok((stream, addr)) = listener.accept().await {
+        let current_connection_clone = Arc::clone(&current_connection); // ここでクローンする
+    
+        let mut conn_guard = current_connection.lock().await;
+    
+        if conn_guard.is_some() {
+            println!("Rejected connection from {}: already connected", addr);
+            drop(conn_guard);
+            let mut reject_stream = stream;
+            let _ = reject_stream.write_all(b"Server busy\n").await;
+            let _ = reject_stream.shutdown().await;
+            continue;
+        }
+    
         println!("Connection established with: {}", addr);
     
         let stream: Arc<Mutex<TcpStream>> = Arc::new(Mutex::new(stream));
+        *conn_guard = Some(Arc::clone(&stream)); // 接続状態を記録
+        drop(conn_guard);
     
         {
             let mut locked_stream = stream.lock().await;
             let _ = locked_stream.write_all(b"Hello from server!").await;
         }
     
-        let stream_clone: Arc<Mutex<TcpStream>> = Arc::clone(&stream); // `stream` の型は `Arc<Mutex<TcpStream>>`
-        
+        let stream_clone = Arc::clone(&stream);
+    
         tokio::spawn(async move {
             let _ = handle_client(stream_clone.lock().await).await;
+    
+            // クライアント切断時に current_connection をクリア
+            let mut conn_guard = current_connection_clone.lock().await;
+            *conn_guard = None;
+            println!("Client disconnected, ready for new connection");
         });
     }
 

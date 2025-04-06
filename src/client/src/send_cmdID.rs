@@ -7,10 +7,10 @@ pub async fn communication_loop(stream: TcpStream) {
     let stream = Arc::new(Mutex::new(stream)); // スレッド間で共有
     let mut reader = io::BufReader::new(io::stdin()); // 非同期で入力を読む
     let mut input = String::new();
+    println!("コマンド（数字）を入力するか、音量を変更するには 'volume <値>' と入力してください。または 'exit' で終了します:");
 
     loop {
-        println!("コマンド（数字）を入力するか、音量を変更するには 'volume <値>' と入力してください。または 'exit' で終了します:");
-
+        
         input.clear();
         if reader.read_line(&mut input).await.is_err() {
             eprintln!("入力の読み込みに失敗しました");
