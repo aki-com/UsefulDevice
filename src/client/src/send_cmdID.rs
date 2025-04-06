@@ -4,6 +4,7 @@ use tokio::sync::Mutex;
 use std::sync::Arc;
 
 pub async fn process_input(stream: &mut TcpStream, input: &str) {
+    // コマンド送信部分は変更なし
     if let Some(volume_command) = input.strip_prefix("volume ") {
         if let Ok(volume_change) = volume_command.trim().parse::<f32>() {
             if let Err(e) = stream.write_all(format!("volume {}\n", volume_change).as_bytes()).await {
@@ -24,16 +25,46 @@ pub async fn process_input(stream: &mut TcpStream, input: &str) {
         return;
     }
 
-    let mut buffer = vec![0; 512];
-    match stream.read(&mut buffer).await {
-        Ok(bytes_read) => {
-            if bytes_read > 0 {
-                println!("サーバーの応答: {}", String::from_utf8_lossy(&buffer[..bytes_read]));
-            } else {
-                println!("サーバーが接続を閉じました。");
+    // 改善されたレスポンス読み取り部分
+    let mut response = String::new();
+    let mut buffer = [0u8; 1024];
+    
+    // タイムアウトを設定して読み取りを行う
+    let timeout = tokio::time::timeout(
+        std::time::Duration::from_secs(2),
+        async {
+            loop {
+                match stream.read(&mut buffer).await {
+                    Ok(0) => {
+                        println!("サーバーが接続を閉じました。");
+                        break;
+                    },
+                    Ok(n) => {
+                        let data = String::from_utf8_lossy(&buffer[..n]);
+                        response.push_str(&data);
+                        
+                        // レスポンスの終わりを検出（例えば改行で終わるなど）
+                        // サーバーの応答形式に合わせて調整が必要
+                        if data.ends_with('\n') || response.len() > 4096 {
+                            break;
+                        }
+                    },
+                    Err(e) => {
+                        eprintln!("サーバーからの読み込みに失敗しました: {}", e);
+                        break;
+                    }
+                }
             }
         }
-        Err(e) => eprintln!("サーバーからの読み込みに失敗しました: {}", e),
+    ).await;
+
+    match timeout {
+        Ok(_) => {
+            if !response.is_empty() {
+                println!("サーバーの応答: {}", response.trim());
+            }
+        },
+        Err(_) => println!("サーバーからの応答を待機中にタイムアウトしました。"),
     }
 }
 
@@ -61,10 +92,9 @@ pub async fn communication_loop(stream: TcpStream) {
             break;
         }
 
-        let stream_clone = Arc::clone(&stream);
-        tokio::spawn(async move {
-            let mut stream = stream_clone.lock().await;
-            process_input(&mut stream, &input).await;
-        });
+        // スレッドを生成せず、直接メインスレッドで処理する
+        let mut stream_locked = stream.lock().await;
+        process_input(&mut stream_locked, &input).await;
+        // ここでロックが自動的に解放される
     }
 }
