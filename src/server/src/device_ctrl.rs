@@ -44,11 +44,12 @@ pub fn send_key_combination(keys: &[VIRTUAL_KEY]) {
             let ki = KEYBDINPUT {
                 wVk: key,
                 wScan: 0,
-                dwFlags: KEYBD_EVENT_FLAGS(0),
+                dwFlags: KEYBD_EVENT_FLAGS(0), // 押下
                 time: 0,
                 dwExtraInfo: 0,
             };
             std::ptr::write(&mut inputs[i].Anonymous as *mut _ as *mut KEYBDINPUT, ki);
+            println!("Key pressed: {:?}", key); // デバッグログ
         }
 
         // キーを離す（逆順）
@@ -56,16 +57,23 @@ pub fn send_key_combination(keys: &[VIRTUAL_KEY]) {
             let ki = KEYBDINPUT {
                 wVk: key,
                 wScan: 0,
-                dwFlags: KEYEVENTF_KEYUP,
+                dwFlags: KEYEVENTF_KEYUP, // 解放
                 time: 0,
                 dwExtraInfo: 0,
             };
             std::ptr::write(&mut inputs[keys.len() + i].Anonymous as *mut _ as *mut KEYBDINPUT, ki);
+            println!("Key released: {:?}", key); // デバッグログ
         }
 
         // すべての入力を一度に送信
-        SendInput(&inputs, std::mem::size_of::<INPUT>() as i32);
+        let result = SendInput(&inputs, std::mem::size_of::<INPUT>() as i32);
+        if result == 0 {
+            eprintln!("Failed to send input");
+        } else {
+            println!("Input sent successfully");
+        }
     }
+    std::thread::sleep(std::time::Duration::from_millis(200)); // ここで少し待機
 }
 
 fn send_ctrl_c() {
@@ -82,6 +90,10 @@ fn send_ctrl_a() {
 
 fn send_alt_tab() {
     send_key_combination(&[VK_MENU, VIRTUAL_KEY(0x09)]);
+}
+
+fn send_windows_e() {
+    send_key_combination(&[VIRTUAL_KEY(0x5B), VIRTUAL_KEY(0x45)]);
 }
 
 pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
@@ -131,11 +143,8 @@ pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
                     }
                     "5" => {
                         println!("Command 5: Alt+Tab");
-                        time::sleep(time::Duration::from_secs(5)).await;
-                        send_alt_tab();
-                        time::sleep(time::Duration::from_secs(5)).await;
-                        println!("Command 5: Alt+Tab");
-                        send_alt_tab();
+                        send_windows_e();
+                        
                     }
                     _ => {
                         println!("Unknown command received");
