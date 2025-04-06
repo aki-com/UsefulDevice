@@ -34,29 +34,28 @@ export component AppWindow inherits Window {
                         alignment: center;
                         height: Square_size * 0.25;
                         Button {
-                            text: "Task Manager";
+                            text: "T M";
                             width: Square_size * 0.25;
             
                             clicked => {
-                                root.cmd_send("volume 0.5");
+                                root.cmd_send("1");
                             }
                         }
                         Button {
-                            text: "Undo";
+                            text: "Explorer";
                             width: Square_size * 0.25;
-            
-            
+                        
                             clicked => {
-                                root.cmd_send("volume 0.2");
+                                root.cmd_send("2");
                             }
                         }
                         Button {
-                            text: "Redo";
+                            text: "Ptr Sc";
                             width: Square_size * 0.25;
             
             
                             clicked => {
-                                root.cmd_send("volume 0.8");
+                                root.cmd_send("3");
                             }
                         }
                     }
@@ -64,7 +63,15 @@ export component AppWindow inherits Window {
                         alignment: center;
                         height: Square_size * 0.25;
                         Button {
-                            text: "All";
+                            text: "Ctrl+S";
+                            width: Square_size * 0.25;
+                            
+                            clicked => {
+                                root.cmd_send("4");
+                            }
+                        }
+                        Button {
+                            text: "Ctrl+P";
                             width: Square_size * 0.25;
                             
                             clicked => {
@@ -72,17 +79,11 @@ export component AppWindow inherits Window {
                             }
                         }
                         Button {
-                            text: "Save";
+                            text: "win+i";
                             width: Square_size * 0.25;
                             
                             clicked => {
-                            }
-                        }
-                        Button {
-                            text: "Ptr Sc";
-                            width: Square_size * 0.25;
-                            
-                            clicked => {
+                                root.cmd_send("6");
                             }
                         }
                     }
@@ -90,18 +91,11 @@ export component AppWindow inherits Window {
                         alignment: center;
                         height: Square_size * 0.25;
                         Button {
-                            text: "X";
-                            width: Square_size * 0.25;
-                            
-                            clicked => {
-            
-                            }
-                        }
-                        Button {
                             text: "Copy";
                             width: Square_size * 0.25;
                             
                             clicked => {
+                                root.cmd_send("7");            
                             }
                         }
                         Button {
@@ -109,6 +103,15 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
                             
                             clicked => {
+                                root.cmd_send("8");
+                            }
+                        }
+                        Button {
+                            text: "Ctrl+A";
+                            width: Square_size * 0.25;
+                            
+                            clicked => {
+                                root.cmd_send("9");
                             }
                         }
                     }   
