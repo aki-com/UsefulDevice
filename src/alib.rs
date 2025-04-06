@@ -25,7 +25,8 @@ fn device_get() -> ModelRc<Device> {
 
 
 #[no_mangle]
-fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std::error::Error>> {
     slint::android::init(app).unwrap();
 
     let ui = Rc::new(RefCell::new(AppWindow::new()?));
@@ -43,7 +44,10 @@ fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std::erro
             let ip :IpAddr = IP_address.to_string().parse().unwrap();
             let port = 5000;
             println!("Connecting to server: {} {} {}", name, ip, port);
-            change_server((name.clone(), ip, port));
+            tokio::spawn(async move {
+                println!("Connecting to server: {} {} {}", name, ip, port);
+                change_server((name.clone(), ip, port)).await;
+            });
     
     
         });
