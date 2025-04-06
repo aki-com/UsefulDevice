@@ -1,7 +1,7 @@
 slint::include_modules!();
 use slint::{Model, ModelRc};
 use std::rc::Rc;
-use ud_client::{change_server, get_server};
+use ud_client::{change_server, get_server,send_command};
 use std::collections::HashMap;
 use std::net::IpAddr;
 use std::cell::RefCell;
@@ -51,6 +51,13 @@ async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std
     
     
         });
+    ui.borrow().on_cmd_send(move |input| {
+        let input = input.to_string();
+        println!("Sending command: {}", input);
+        tokio::spawn(async move {
+            send_command(input).await;
+        });
+    });
 
 
 

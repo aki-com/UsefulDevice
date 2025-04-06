@@ -17,6 +17,7 @@ export global App_Data {
 export component AppWindow inherits Window {
     callback list_update();
     callback server_connecting(Device);
+    callback cmd_send(string);
 
     in-out property <length> Square_size: (root.width > root.height) ? root.height : root.width;
     in-out property <[Device]> devices;
@@ -37,6 +38,7 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
             
                             clicked => {
+                                root.cmd_send("volume 0.5");
                             }
                         }
                         Button {
@@ -45,6 +47,7 @@ export component AppWindow inherits Window {
             
             
                             clicked => {
+                                root.cmd_send("volume 0.2");
                             }
                         }
                         Button {
@@ -53,6 +56,7 @@ export component AppWindow inherits Window {
             
             
                             clicked => {
+                                root.cmd_send("volume 0.8");
                             }
                         }
                     }
@@ -64,6 +68,7 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
                             
                             clicked => {
+                                root.cmd_send("5");
                             }
                         }
                         Button {

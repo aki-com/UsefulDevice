@@ -3,7 +3,7 @@ use tokio::io::{self, AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
 use tokio::sync::Mutex;
 use std::sync::Arc;
 
-async fn process_input(stream: &mut tokio::net::TcpStream, input: &str) {
+pub async fn process_input(stream: &mut TcpStream, input: &str) {
     if let Some(volume_command) = input.strip_prefix("volume ") {
         if let Ok(volume_change) = volume_command.trim().parse::<f32>() {
             if let Err(e) = stream.write_all(format!("volume {}\n", volume_change).as_bytes()).await {
@@ -37,7 +37,7 @@ async fn process_input(stream: &mut tokio::net::TcpStream, input: &str) {
     }
 }
 
-pub async fn send_command(stream: std::sync::Arc<tokio::sync::Mutex<tokio::net::TcpStream>>, input: String) {
+pub async fn send_command(stream: std::sync::Arc<tokio::sync::Mutex<TcpStream>>, input: String) {
     let mut stream = stream.lock().await;
     process_input(&mut stream, &input).await;
 }

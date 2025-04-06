@@ -1,10 +1,18 @@
 use discover_connect::discover_server;
+use tokio::stream;
 use std::collections::HashMap;
 use std::net::IpAddr;
 use tokio::net::TcpStream;
-
+use tokio::sync::Mutex; 
+use std::cell::RefCell;
 mod discover_connect;
 mod send_cmdID;
+
+use std::sync::Arc;
+use once_cell::sync::Lazy;
+
+static STREAM: Lazy<Arc<Mutex<Option<TcpStream>>>> = Lazy::new(|| Arc::new(Mutex::new(None)));
+
 
 pub fn client_test(){
     println!("client_test");
@@ -18,15 +26,22 @@ pub fn get_server() -> HashMap<usize, (String, IpAddr, u16)> {
 pub async fn change_server(server_map: (String, IpAddr, u16)) {
     
     let (_name, ip, port) = server_map.clone();
-    
-    
-    // tokio を使って非同期接続
-    if let Some(stream) = discover_connect::connect_to_server(ip, port).await {
-        // 非同期処理なので、await を使う
-        // ここで stream を使って通信を行う
-        send_cmdID::communication_loop(stream).await;
-        
+
+        // tokio を使って非同期接続
+        if let Some(new_stream) = discover_connect::connect_to_server(ip, port).await {
+            let mut stream_guard = STREAM.lock().await;
+            *stream_guard = Some(new_stream);
+        } else {
+            println!("サーバーへの接続に失敗しました。");
+        }
+}
+
+pub async fn send_command(input: String) {
+    let mut stream_guard = STREAM.lock().await;
+
+    if let Some(ref mut stream) = *stream_guard {
+            send_cmdID::process_input(stream, &input).await;
     } else {
-        println!("サーバーへの接続に失敗しました。");
+        println!("接続されていません。");
     }
 }
