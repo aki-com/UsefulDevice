@@ -117,10 +117,25 @@ export component AppWindow inherits Window {
                     }   
                     HorizontalBox {
                         alignment: center;
+                        Button {
+                            text: "mute";
+                            width: Square_size * 0.25;
+
+
+
+                            clicked => {
+                                root.cmd_send("volume 0");
+                            }
+
+                        }
                         Slider {
-                            width: Square_size * 0.75;
+                            width: Square_size * 0.5;
                             height: 20px;
-                            value: 0.5;
+                            maximum: 1;
+                            minimum: 0;
+                            released(position) => {
+                                root.cmd_send("volume " + position);
+                            }
                         }
                     
                 }
