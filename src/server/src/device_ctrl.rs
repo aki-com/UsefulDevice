@@ -116,6 +116,10 @@ fn send_win_i() {
     send_key_combination(&[VIRTUAL_KEY(0x5B), VIRTUAL_KEY(0x49)]);
 }
 
+fn send_mute() {
+    send_key_combination(&[VIRTUAL_KEY(0xAD)]); // ミュートキー
+}
+
 pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
     let mut buffer = [0; 512];
 
@@ -145,7 +149,7 @@ pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
                         send_ctrl_shift_esc();
                     }
                     "2" => {
-                        println!("Command 2: Windows+E");
+                        println!("Command 2: Explorer");
                         send_windows_e();
                     }
                     "3" => {
@@ -175,6 +179,10 @@ pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
                     "9" => {
                         println!("Command 9: Ctrl+A");
                         send_ctrl_a();
+                    }
+                    "10" => {
+                        println!("Command 10: mute");
+                        send_mute();
                     }
                     _ => {
                         println!("Unknown command received");
