@@ -1,17 +1,22 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 
 use std::collections::HashMap;
 use std::error::Error;
-use slint::{Model, ModelRc};
+use slint::ModelRc;
 //use ud_server::server_test;
 use ud_client::{change_server, get_server,send_command};
-use tokio::net::TcpStream;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::net::IpAddr;
 
 slint::include_modules!();
+
+
+
+
+
 
 fn device_get() -> ModelRc<Device> {
     let device_raw = get_server(); //デバイスの取得
