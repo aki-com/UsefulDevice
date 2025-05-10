@@ -10,19 +10,27 @@ ud_client = {path = "src/client" }
 #ud_server = {path = "src/server" }
 tokio = { version = "1.45.0", features = ["full"] }
 
-[lib]
+
+[target.aarch64-linux-android.lib]
 crate-type = ["cdylib"]
 
-[target.aarch64-linux-android.dependencies]
+[target.'cfg(target_os = "android")'.dependencies]
 slint = { version = "1.11.0", features = ["backend-android-activity-06"] }
 android-activity = "0.6.0"
 
-[target.x86_64-windows.dependencies]
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
 slint =  "1.11.0"
+
 
 [build-dependencies]
 slint-build = "1.11.0"
 
+
+
+
+
+#android settings
 [package.metadata.android.signing.release]
 path = "mcrandroid.jks"  # Keystore のパス（Cargo.toml のあるディレクトリ基準）
 keystore_password = "789632145"  # Keystore のパスワード
