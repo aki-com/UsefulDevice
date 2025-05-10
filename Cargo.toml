@@ -7,14 +7,33 @@ edition = "2021"
 
 [dependencies]
 ud_client = {path = "src/client" }
-ud_server = {path = "src/server" }
-slint = "1.10.0"
-tokio = { version = "1.31", features = ["full"] }
-[build-dependencies]
-slint-build = "1.10.0"
+#ud_server = {path = "src/server" }
+tokio = { version = "1.45.0", features = ["full"] }
 
-#[package.metadata.android.signing.release]
-#path = "mcrandroid.jks"  # Keystore のパス（Cargo.toml のあるディレクトリ基準）
-#keystore_password = "789632145"  # Keystore のパスワード
-#key_alias = "my-key-alias"  # Keystore の alias
-#key_password = "789632145"  # キーのパスワード
+[lib]
+crate-type = ["cdylib"]
+
+[target.aarch64-linux-android.dependencies]
+slint = { version = "1.11.0", features = ["backend-android-activity-06"] }
+android-activity = "0.6.0"
+
+[target.x86_64-windows.dependencies]
+slint =  "1.11.0"
+
+[build-dependencies]
+slint-build = "1.11.0"
+
+[package.metadata.android.signing.release]
+path = "mcrandroid.jks"  # Keystore のパス（Cargo.toml のあるディレクトリ基準）
+keystore_password = "789632145"  # Keystore のパスワード
+key_alias = "my-key-alias"  # Keystore の alias
+key_password = "789632145"  # キーのパスワード
+
+[package.metadata.android]
+
+[[package.metadata.android.uses_permission]]
+name="android.permission.INTERNET"
+[[package.metadata.android.uses_permission]]
+name="android.permission.ACCESS_NETWORK_STATE"
+[[package.metadata.android.uses_permission]]
+name="android.permission.CHANGE_WIFI_MULTICAST_STATE"
