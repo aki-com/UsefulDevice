@@ -18,12 +18,14 @@ slint = { version = "1.11.0", features = ["backend-android-activity-06"] }
 android-activity = "0.6.0"
 
 
+
+
 [target.'cfg(not(target_os = "android"))'.dependencies]
 slint =  "1.11.0"
 
 
 [build-dependencies]
-slint-build = "1.11.0"
+slint-build = "1.12.0"
 
 [patch.crates-io]
 slint = { git = "https://github.com/slint-ui/slint" }

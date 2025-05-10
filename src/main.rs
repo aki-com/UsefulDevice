@@ -75,7 +75,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 
 }
-/*ui.on_show_settings(|| {
+/*
+ui.on_show_settings(|| {
         let dialog = Rc::new(device_search::new().unwrap());
         
         let dialog_clone = dialog.clone(); // Clone the Rc pointer
@@ -85,9 +86,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         
         dialog.show().unwrap();
     });*/
-    #[cfg(any(target_os = "android", target_os = "ios"))]
-    fn main() {
-        // AndroidやiOSのメイン関数はここに記述
-          // AndroidやiOSのUI初期化コードをここに記述
-        // 例: slint::android::init(app).unwrap();
-    }
+#[cfg(any(target_os = "android", target_os = "ios"))]
+fn main() {
+    // AndroidやiOSのメイン関数はここに記述
+        // AndroidやiOSのUI初期化コードをここに記述
+    // 例: slint::android::init(app).unwrap();
+}

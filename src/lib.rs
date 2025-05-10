@@ -69,3 +69,51 @@ async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std
     Ok(())
 
 }
+
+#[cfg(target_os = "ios")]
+#[no_mangle]
+pub extern "C" fn ios_main() {
+    std::thread::spawn(|| {
+        let _ = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap()
+            .block_on(async_main());
+    });
+}
+
+async fn async_main() -> Result<(), Box<dyn std::error::Error>> {
+    let ui = Rc::new(RefCell::new(AppWindow::new()?));
+    let ui_clone = ui.clone();
+
+    ui_clone.borrow().set_devices(device_get());
+    ui.borrow().on_list_update(move || {
+        ui_clone.borrow().set_devices(device_get());
+    });
+
+    ui.borrow().on_server_connecting(|index| {
+        let Device {
+            device_name,
+            IP_address,
+        } = index;
+        let name = device_name.to_string();
+        let ip: IpAddr = IP_address.to_string().parse().unwrap();
+        let port = 5000;
+        println!("Connecting to server: {} {} {}", name, ip, port);
+        tokio::spawn(async move {
+            change_server((name, ip, port)).await;
+        });
+    });
+
+    ui.borrow().on_cmd_send(move |input| {
+        let input = input.to_string();
+        println!("Sending command: {}", input);
+        tokio::spawn(async move {
+            send_command(input).await;
+        });
+    });
+
+    ui.borrow().run()?;
+
+    Ok(())
+}
