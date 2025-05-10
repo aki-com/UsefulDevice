@@ -1,6 +1,6 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-#[cfg(not(any(target_os = "android", target_os = "ios")))]
+
 
 use std::collections::HashMap;
 use std::error::Error;
@@ -35,7 +35,7 @@ fn device_get() -> ModelRc<Device> {
 }
 
 
-
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let ui = Rc::new(RefCell::new(AppWindow::new()?));
@@ -85,3 +85,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         
         dialog.show().unwrap();
     });*/
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    fn main() {
+        // AndroidやiOSのメイン関数はここに記述
+          // AndroidやiOSのUI初期化コードをここに記述
+        // 例: slint::android::init(app).unwrap();
+    }
