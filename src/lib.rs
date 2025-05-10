@@ -1,3 +1,6 @@
+
+
+
 slint::include_modules!();
 use slint::{Model, ModelRc};
 use std::rc::Rc;
@@ -23,7 +26,7 @@ fn device_get() -> ModelRc<Device> {
 }
 
 
-
+#[cfg(target_os = "android")]
 #[no_mangle]
 #[tokio::main]
 async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std::error::Error>> {

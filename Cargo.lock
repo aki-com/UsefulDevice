@@ -6425,3 +6425,13 @@ dependencies = [
  "quote",
  "syn 2.0.100",
 ]
+
+[[patch.unused]]
+name = "slint"
+version = "1.12.0"
+source = "git+https://github.com/slint-ui/slint#92f3a9a5acef81555419e64a755767c9b78f0547"
+
+[[patch.unused]]
+name = "slint-build"
+version = "1.12.0"
+source = "git+https://github.com/slint-ui/slint#92f3a9a5acef81555419e64a755767c9b78f0547"
