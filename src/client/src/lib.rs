@@ -20,7 +20,6 @@ pub fn client_test(){
 
 pub fn get_server() -> HashMap<usize, (String, IpAddr, u16)> {
     discover_server()
-
 }
 
 pub async fn change_server(server_map: (String, IpAddr, u16)) {
