@@ -49,3 +49,5 @@ name="android.permission.INTERNET"
 name="android.permission.ACCESS_NETWORK_STATE"
 [[package.metadata.android.uses_permission]]
 name="android.permission.CHANGE_WIFI_MULTICAST_STATE"
+
+#cargo apk build --release --target aarch64-linux-android

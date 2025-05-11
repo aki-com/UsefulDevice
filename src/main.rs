@@ -19,7 +19,7 @@ slint::include_modules!();
 
 
 fn device_get() -> ModelRc<Device> {
-    let device_raw = get_server(); //デバイスの取得
+    let device_raw = tokio::runtime::Runtime::new().unwrap().block_on(get_server()); //デバイスの取得
 
     let device: HashMap<usize, (String, IpAddr)> = device_raw.iter().map(|(&key, (name, ip, _port))| { // port は無視
         (key, (name.clone(), *ip))

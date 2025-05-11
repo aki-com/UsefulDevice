@@ -2,10 +2,12 @@ use mdns_sd::{ServiceDaemon, ServiceEvent};
 use std::net::{IpAddr};
 use std::{thread, time, collections::HashMap};
 use std::io;
-use std::time::{Duration, Instant};
+use std::time::{Duration};
 use tokio::net::TcpStream;
+use tokio::time::{sleep, Instant};
+use tokio::task;
 
-pub fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
+pub async fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
     let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
     let receiver = mdns.browse("_useful_devices._udp.local.").expect("Failed to browse for mDNS services");
 
@@ -14,25 +16,31 @@ pub fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
 
     println!("Searching for servers...");
 
-    let timeout = Duration::from_secs_f32(1.5); // タイムアウトを2秒に
+    let timeout = Duration::from_secs_f32(1.5);
     let start_time = Instant::now();
 
-    while start_time.elapsed() < timeout {
-        if let Ok(event) = receiver.recv_timeout(Duration::from_secs_f32(0.5)) {
-            if let ServiceEvent::ServiceResolved(info) = event {
-                if let Some(ip) = info.get_addresses().iter().next() {
-                    let mut name = info.get_hostname().to_string();
-                    if name.ends_with(".local.") {
-                        name = name.trim_end_matches(".local.").to_string();
-                    }
-                    if !servers.values().any(|(n, existing_ip, _)| existing_ip == ip && n == &name) {
-                        servers.insert(index, (name.clone(), *ip, 5000)); 
-                        println!("{}: {} {}", index, name, ip);
-                        index += 1;
-                    }
+    while Instant::now().duration_since(start_time) < timeout {
+        let remaining = Duration::from_secs_f32(0.5);
+        let recv_result = task::spawn_blocking({
+            let receiver = receiver.clone();
+            move || receiver.recv_timeout(remaining)
+        }).await;
+
+        if let Ok(Ok(ServiceEvent::ServiceResolved(info))) = recv_result {
+            if let Some(ip) = info.get_addresses().iter().next() {
+                let mut name = info.get_hostname().to_string();
+                if name.ends_with(".local.") {
+                    name = name.trim_end_matches(".local.").to_string();
+                }
+                if !servers.values().any(|(n, existing_ip, _)| existing_ip == ip && n == &name) {
+                    servers.insert(index, (name.clone(), *ip, 5000));
+                    println!("{}: {} {}", index, name, ip);
+                    index += 1;
                 }
             }
         }
+
+        sleep(Duration::from_millis(50)).await;
     }
 
     servers
