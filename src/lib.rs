@@ -8,21 +8,13 @@ use std::collections::HashMap;
 use std::net::IpAddr;
 use std::cell::RefCell;
 
-fn device_get() -> ModelRc<Device> {
-    let device_raw = get_server(); // デバイスの取得
+async fn get_device() -> Vec<Device> {
+    let raw = get_server().await;
 
-    let device: HashMap<usize, (String, IpAddr)> = device_raw.iter().map(|(&key, (name, ip, _port))| {
-        (key, (name.clone(), *ip))
-    }).collect();
-
-    let devices = slint::VecModel::from(device.iter().map(|(_key, (name, ip))| {
-        Device {
-            device_name: name.clone().into(),
-            IP_address: ip.to_string().into(),
-        }
-    }).collect::<Vec<_>>());
-
-    slint::ModelRc::new(devices)
+    raw.into_iter().map(|(_, (name, ip, _))| Device {
+        device_name: name.into(),
+        IP_address: ip.to_string().into(),
+    }).collect()
 }
 
 #[no_mangle]
@@ -32,24 +24,25 @@ async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std
     //初期化
     slint::android::init(app).unwrap();
     let ui = AppWindow::new()?;
-    let devices_model = device_get();
-    ui.set_devices(devices_model);
-
+    let ui_weak = ui.as_weak();
     
+
+
     // リスト更新ハンドラ（非同期で更新）
     {
-        let ui_weak = ui.as_weak();
-        ui.on_list_update(move || {
-            let ui_weak = ui_weak.clone();
-            // Use spawn_local for tasks that aren't Send
-            tokio::task::spawn_local(async move {
-                let new_model = device_get();
-                if let Some(ui) = ui_weak.upgrade() {
-                    ui.set_devices(new_model);
-                }
+    
+    ui.on_list_update(move || {
+        let ui_weak = ui_weak.clone();
+        // Use spawn_local for tasks that aren't Send
+        tokio::task::spawn(async move {
+            let device = get_device().await;
+             let _ = slint::invoke_from_event_loop(move || {
+                let model = ModelRc::new(slint::VecModel::from(device));
+                ui_weak.unwrap().set_devices(model);
             });
         });
-    }
+    });
+}
 
     // サーバー接続ハンドラ
     {
@@ -101,6 +94,7 @@ pub extern "C" fn ios_main() {
     });
 }
 
+#[cfg(target_os = "ios")]
 async fn async_main() -> Result<(), Box<dyn std::error::Error>> {
     let ui = AppWindow::new()?;
     
