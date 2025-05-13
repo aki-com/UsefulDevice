@@ -3,17 +3,6 @@
 version = 4
 
 [[package]]
-name = "Useful_Device"
-version = "0.1.0"
-dependencies = [
- "android-activity 0.6.0",
- "slint",
- "slint-build",
- "tokio",
- "ud_client",
-]
-
-[[package]]
 name = "ab_glyph"
 version = "0.2.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5184,6 +5173,17 @@ dependencies = [
  "form_urlencoded",
  "idna",
  "percent-encoding",
+]
+
+[[package]]
+name = "useful_device"
+version = "0.1.0"
+dependencies = [
+ "android-activity 0.6.0",
+ "slint",
+ "slint-build",
+ "tokio",
+ "ud_client",
 ]
 
 [[package]]

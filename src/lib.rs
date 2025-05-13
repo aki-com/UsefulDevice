@@ -58,50 +58,20 @@ pub extern "C" fn ios_main() {
 async fn async_main() -> Result<(), Box<dyn std::error::Error>> {
     let ui = AppWindow::new()?;
         // 初期デバイスセット
-    let devices_model = device_get();
-    ui.set_devices(devices_model);
-    
+       let ui = AppWindow::new()?;
+    let ui_weak = ui.as_weak();
 
-    // リスト更新ハンドラ
-    {
-        let ui_weak = ui.as_weak();
-        ui.on_list_update(move || {
-            let ui_weak = ui_weak.clone();
-            // Use spawn_local for tasks that aren't Send
-            tokio::task::spawn_local(async move {
-                let new_model = device_get();
-                if let Some(ui) = ui_weak.upgrade() {
-                    ui.set_devices(new_model);
-                }
-            });
-        });
-    }
+    ui.on_list_update(move || {
+        let ui_weak = ui_weak.clone();
+        list_update(ui_weak);
+    });
 
-    // Server connecting handler
-    {
-        ui.on_server_connecting(|index| {
-            let Device { device_name, IP_address } = index;
-            let name = device_name.to_string();
-            let ip: IpAddr = IP_address.to_string().parse().unwrap();
-            let port = 5000;
-            
-            println!("Connecting to server: {} {} {}", name, ip, port);
-            tokio::spawn(async move {
-                change_server((name, ip, port)).await;
-            });
-        });
-    }
-
-    // Command sending handler
-    {
-        ui.on_cmd_send(|input| {
-            let input = input.to_string();
-            println!("Sending command: {}", input);
-            tokio::spawn(async move {
-                send_command(input).await;
-            });
-        });
-    }
+    ui.on_server_connecting(|index| {
+        server_connecting(index);
+    });
+    ui.on_cmd_send(|input| {
+        cmd_send(input);
+    });
 
     ui.run()?;
 
