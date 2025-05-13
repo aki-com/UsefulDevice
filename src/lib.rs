@@ -38,7 +38,7 @@ async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std
         // Use spawn_local for tasks that aren't Send
         tokio::task::spawn(async move {
             let device = get_device().await;
-             let _ = slint::invoke_from_event_loop(move || {
+            let _ = slint::invoke_from_event_loop(move || {
                 let model = ModelRc::new(slint::VecModel::from(device));
                 ui_weak.unwrap().set_devices(model);
             });

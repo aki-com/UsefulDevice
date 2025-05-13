@@ -1,12 +1,10 @@
 use discover_connect::discover_server;
-use tokio::stream;
 use std::collections::HashMap;
 use std::net::IpAddr;
 use tokio::net::TcpStream;
 use tokio::sync::Mutex; 
-use std::cell::RefCell;
 mod discover_connect;
-mod send_cmdID;
+mod send_cmd;
 
 use std::sync::Arc;
 use once_cell::sync::Lazy;
@@ -40,7 +38,7 @@ pub async fn send_command(input: String) {
     let mut stream_guard = STREAM.lock().await;
 
     if let Some(ref mut stream) = *stream_guard {
-            send_cmdID::process_input(stream, &input).await;
+            send_cmd::process_input(stream, &input).await;
     } else {
         println!("接続されていません。");
     }

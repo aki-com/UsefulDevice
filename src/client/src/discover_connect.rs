@@ -1,11 +1,10 @@
 use mdns_sd::{ServiceDaemon, ServiceEvent};
-use std::{thread, time, collections::HashMap};
+use std::collections::HashMap;
 use std::io;
 use std::time::{Duration, Instant};
 use tokio::net::TcpStream;
 use std::net::IpAddr;
 
-use tokio::sync::mpsc;
 use tokio::time::timeout;
 
 pub async fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
@@ -47,7 +46,7 @@ pub async fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
 }
 
 
-pub fn select_server(servers: &HashMap<usize, (String, IpAddr, u16)>) -> Option<(IpAddr, u16)> {
+/*pub fn select_server(servers: &HashMap<usize, (String, IpAddr, u16)>) -> Option<(IpAddr, u16)> {
     if servers.is_empty() {
         return None;
     }
@@ -64,7 +63,7 @@ pub fn select_server(servers: &HashMap<usize, (String, IpAddr, u16)>) -> Option<
         }
         println!("Invalid selection. Try again.");
     }
-}
+}*/
 
 // 接続だけを行う
 pub async fn connect_to_server(ip: IpAddr, port: u16) -> Option<TcpStream> {
