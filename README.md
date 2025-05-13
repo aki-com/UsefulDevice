@@ -1,10 +1,12 @@
  # build_cmd
 
- ### android
+ ## android 
 
-cargo apk build --release --target aarch64-linux-android
+ cargo apk build --release --target aarch64-linux-android
 
- ### android_emulator
+ ### emulator
 
  adb devices
  cargo apk run --target aarch64-linux-android --lib
+
+# ios
