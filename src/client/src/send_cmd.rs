@@ -1,7 +1,5 @@
 use tokio::net::TcpStream;
-use tokio::io::{self, AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
-use tokio::sync::Mutex;
-use std::sync::Arc;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 pub async fn process_input(stream: &mut TcpStream, input: &str) {
     // コマンド送信部分は変更なし
@@ -68,33 +66,3 @@ pub async fn process_input(stream: &mut TcpStream, input: &str) {
     }
 }
 
-pub async fn send_command(stream: std::sync::Arc<tokio::sync::Mutex<TcpStream>>, input: String) {
-    let mut stream = stream.lock().await;
-    process_input(&mut stream, &input).await;
-}
-
-pub async fn communication_loop(stream: TcpStream) {
-    let stream = Arc::new(Mutex::new(stream));
-    let mut reader = io::BufReader::new(io::stdin());
-    let mut input = String::new();
-    println!("コマンド（数字）を入力するか、音量を変更するには 'volume <値>' と入力してください。または 'exit' で終了します:");
-
-    loop {
-        input.clear();
-        if reader.read_line(&mut input).await.is_err() {
-            eprintln!("入力の読み込みに失敗しました");
-            continue;
-        }
-
-        let input = input.trim().to_string();
-        if input == "exit" {
-            println!("終了します...");
-            break;
-        }
-
-        // スレッドを生成せず、直接メインスレッドで処理する
-        let mut stream_locked = stream.lock().await;
-        process_input(&mut stream_locked, &input).await;
-        // ここでロックが自動的に解放される
-    }
-}

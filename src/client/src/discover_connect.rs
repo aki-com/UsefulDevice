@@ -1,6 +1,5 @@
 use mdns_sd::{ServiceDaemon, ServiceEvent};
 use std::collections::HashMap;
-use std::io;
 use std::time::{Duration, Instant};
 use tokio::net::TcpStream;
 use std::net::IpAddr;

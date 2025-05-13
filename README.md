@@ -1,7 +1,5 @@
  # build_cmd
 
-
- 
  <img src="horizontallockup_primary_JWbDwnP.png" alt="logo" width="120">
  <li>
  cargo apk build --release --target aarch64-linux-android
