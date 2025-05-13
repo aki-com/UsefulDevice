@@ -1,21 +1,15 @@
 #![cfg(target_os = "android")]
 
+mod slint_fanc;
+
+
+use std::error::Error;
+
+use ud_client::{change_server, get_server,send_command};
+use slint_fanc::{cmd_send, list_update, server_connecting};
+
 slint::include_modules!();
-use slint::{Model, ModelRc, SharedString, Weak};
-use std::rc::Rc;
-use ud_client::{change_server, get_server, send_command};
-use std::collections::HashMap;
-use std::net::IpAddr;
-use std::cell::RefCell;
 
-async fn get_device() -> Vec<Device> {
-    let raw = get_server().await;
-
-    raw.into_iter().map(|(_, (name, ip, _))| Device {
-        device_name: name.into(),
-        IP_address: ip.to_string().into(),
-    }).collect()
-}
 
 #[no_mangle]
 #[tokio::main]
