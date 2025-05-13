@@ -18,19 +18,13 @@ slint::include_modules!();
 
 
 
-async fn device_get() -> ModelRc<Device> {
-    let device_raw = get_server().await; // 非同期版のget_server()が必要
+async fn get_device() -> Vec<Device> {
+    let raw = get_server().await;
 
-    let devices = slint::VecModel::from(
-        device_raw.iter().map(|(_, (name, ip, _))| {
-            Device {
-                device_name: name.clone().into(),
-                IP_address: ip.to_string().into(),
-            }
-        }).collect::<Vec<_>>()
-    );
-
-    slint::ModelRc::new(devices)
+    raw.into_iter().map(|(_, (name, ip, _))| Device {
+        device_name: name.into(),
+        IP_address: ip.to_string().into(),
+    }).collect()
 }
 
 
@@ -38,18 +32,20 @@ async fn device_get() -> ModelRc<Device> {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let ui = AppWindow::new().unwrap();
+    let ui_weak = ui.as_weak();
 
 
 {
-    let ui_weak = ui.as_weak();
+    
     ui.on_list_update(move || {
         let ui_weak = ui_weak.clone();
         // Use spawn_local for tasks that aren't Send
         tokio::task::spawn(async move {
-            let new_model = device_get().await;
-            if let Some(ui) = ui_weak.upgrade() {
-                ui.set_devices(new_model);
-            }
+            let device = get_device().await;
+             let _ = slint::invoke_from_event_loop(move || {
+                let model = ModelRc::new(slint::VecModel::from(device));
+                ui_weak.unwrap().set_devices(model);
+            });
         });
     });
 }
