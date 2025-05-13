@@ -6,7 +6,3 @@ mod device_ctrl;
 async fn main() {
     server::start_server().await;
 }
-
-
-
-
