@@ -1,4 +1,4 @@
-#![cfg(target_os = "android")]
+#![cfg(any(target_os = "android", target_os = "ios"))]
 
 mod slint_fanc;
 
@@ -10,7 +10,7 @@ use slint_fanc::{cmd_send, list_update, server_connecting};
 
 slint::include_modules!();
 
-
+#[cfg(target_os = "android")]
 #[no_mangle]
 #[tokio::main]
 async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std::error::Error>> {
@@ -57,8 +57,6 @@ pub extern "C" fn ios_main() {
 #[cfg(target_os = "ios")]
 async fn async_main() -> Result<(), Box<dyn std::error::Error>> {
     let ui = AppWindow::new()?;
-        // 初期デバイスセット
-       let ui = AppWindow::new()?;
     let ui_weak = ui.as_weak();
 
     ui.on_list_update(move || {
