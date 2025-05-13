@@ -25,6 +25,8 @@ async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std
     slint::android::init(app).unwrap();
     let ui = AppWindow::new()?;
     let ui_weak = ui.as_weak();
+    // 初期デバイスセット
+
     
 
 
@@ -97,10 +99,10 @@ pub extern "C" fn ios_main() {
 #[cfg(target_os = "ios")]
 async fn async_main() -> Result<(), Box<dyn std::error::Error>> {
     let ui = AppWindow::new()?;
-    
-    // 初期デバイスセット
+        // 初期デバイスセット
     let devices_model = device_get();
     ui.set_devices(devices_model);
+    
 
     // リスト更新ハンドラ
     {
