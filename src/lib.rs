@@ -19,54 +19,18 @@ async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std
     slint::android::init(app).unwrap();
     let ui = AppWindow::new()?;
     let ui_weak = ui.as_weak();
-    // 初期デバイスセット
 
-    
-
-
-    // リスト更新ハンドラ（非同期で更新）
-    {
-    
     ui.on_list_update(move || {
         let ui_weak = ui_weak.clone();
-        // Use spawn_local for tasks that aren't Send
-        tokio::task::spawn(async move {
-            let device = get_device().await;
-            let _ = slint::invoke_from_event_loop(move || {
-                let model = ModelRc::new(slint::VecModel::from(device));
-                ui_weak.unwrap().set_devices(model);
-            });
-        });
+        list_update(ui_weak);
     });
-}
 
-    // サーバー接続ハンドラ
-    {
-        ui.on_server_connecting(|index| {
-            let Device { device_name, IP_address } = index;
-            let name = device_name.to_string();
-            let ip: IpAddr = IP_address.to_string().parse().unwrap();
-            let port = 5000;
-
-            println!("Connecting to server: {} {} {}", name, ip, port);
-            // We can use regular spawn here as this doesn't capture UI
-            tokio::spawn(async move {
-                change_server((name, ip, port)).await;
-            });
-        });
-    }
-
-    // コマンド送信ハンドラ
-    {
-        ui.on_cmd_send(|input| {
-            let input = input.to_string();
-            println!("Sending command: {}", input);
-            // We can use regular spawn here as this doesn't capture UI
-            tokio::spawn(async move {
-                send_command(input).await;
-            });
-        });
-    }
+    ui.on_server_connecting(|index| {
+        server_connecting(index);
+    });
+    ui.on_cmd_send(|input| {
+        cmd_send(input);
+    });
 
     ui.run()?;
 
