@@ -28,14 +28,14 @@ fn device_get() -> ModelRc<Device> {
 #[no_mangle]
 #[tokio::main]
 async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std::error::Error>> {
-    slint::android::init(app).unwrap();
 
+    //初期化
+    slint::android::init(app).unwrap();
     let ui = AppWindow::new()?;
-    
-    // 初期デバイスセット
     let devices_model = device_get();
     ui.set_devices(devices_model);
 
+    
     // リスト更新ハンドラ（非同期で更新）
     {
         let ui_weak = ui.as_weak();

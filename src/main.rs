@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 use std::error::Error;
-use slint::ModelRc;
+use slint::{ModelRc, SharedString, Weak};
 //use ud_server::server_test;
 use ud_client::{change_server, get_server,send_command};
 use std::rc::Rc;
@@ -18,19 +18,18 @@ slint::include_modules!();
 
 
 
-fn device_get() -> ModelRc<Device> {
-    let device_raw = get_server(); //デバイスの取得
+async fn device_get() -> ModelRc<Device> {
+    let device_raw = get_server().await; // 非同期版のget_server()が必要
 
-    let device: HashMap<usize, (String, IpAddr)> = device_raw.iter().map(|(&key, (name, ip, _port))| { // port は無視
-        (key, (name.clone(), *ip))
-    })
-    .collect();
-    let devices = slint::VecModel::from(device.iter().map(|(key, (name, ip))| {
-        Device {
-            device_name: name.clone().into(),
-            IP_address: ip.to_string().into(),
-        }
-    }).collect::<Vec<_>>());
+    let devices = slint::VecModel::from(
+        device_raw.iter().map(|(_, (name, ip, _))| {
+            Device {
+                device_name: name.clone().into(),
+                IP_address: ip.to_string().into(),
+            }
+        }).collect::<Vec<_>>()
+    );
+
     slint::ModelRc::new(devices)
 }
 
@@ -38,42 +37,55 @@ fn device_get() -> ModelRc<Device> {
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let ui = Rc::new(RefCell::new(AppWindow::new()?));
+    let ui = AppWindow::new().unwrap();
 
-    let ui_clone = ui.clone();
-    
-    ui_clone.borrow().set_devices(device_get());
-    ui.borrow().on_list_update(move || {
-        ui_clone.borrow().set_devices(device_get());
+
+{
+    let ui_weak = ui.as_weak();
+    ui.on_list_update(move || {
+        let ui_weak = ui_weak.clone();
+        // Use spawn_local for tasks that aren't Send
+        tokio::task::spawn(async move {
+            let new_model = device_get().await;
+            if let Some(ui) = ui_weak.upgrade() {
+                ui.set_devices(new_model);
+            }
+        });
     });
+}
 
-    ui.borrow().on_server_connecting(|index| {
-        let Device{device_name, IP_address} = index;
+
+       // サーバー接続ハンドラ
+    {
+        ui.on_server_connecting(|index| {
+            let Device { device_name, IP_address } = index;
             let name = device_name.to_string();
-            let ip :IpAddr = IP_address.to_string().parse().unwrap();
+            let ip: IpAddr = IP_address.to_string().parse().unwrap();
             let port = 5000;
+
             println!("Connecting to server: {} {} {}", name, ip, port);
+            // We can use regular spawn here as this doesn't capture UI
             tokio::spawn(async move {
-                println!("Connecting to server: {} {} {}", name, ip, port);
-                change_server((name.clone(), ip, port)).await;
+                change_server((name, ip, port)).await;
             });
-    
-    
         });
-    ui.borrow().on_cmd_send(move |input| {
-        let input = input.to_string();
-        println!("Sending command: {}", input);
-        tokio::spawn(async move {
-            send_command(input).await;
+    }
+
+    // コマンド送信ハンドラ
+    {
+        ui.on_cmd_send(|input| {
+            let input = input.to_string();
+            println!("Sending command: {}", input);
+            // We can use regular spawn here as this doesn't capture UI
+            tokio::spawn(async move {
+                send_command(input).await;
+            });
         });
-    });
+    }
 
-
-
-    ui.borrow().run()?;
+    ui.run()?;
 
     Ok(())
-
 }
 /*
 ui.on_show_settings(|| {
