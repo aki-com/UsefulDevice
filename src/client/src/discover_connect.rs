@@ -1,4 +1,5 @@
 use mdns_sd::{ServiceDaemon, ServiceEvent};
+use zeroconf::{prelude::*, ServiceDiscovery, ServiceType, TxtRecord};
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 use tokio::net::TcpStream;
@@ -7,43 +8,40 @@ use std::net::IpAddr;
 use tokio::time::timeout;
 
 pub async fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
-    let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
-    let receiver = mdns
-        .browse("_useful_devices._udp.local.")
-        .expect("Failed to browse for mDNS services");
-
     let mut servers = HashMap::new();
     let mut index = 1;
 
     println!("Searching for servers...");
 
-    let timeout_duration = Duration::from_secs_f32(1.5);
-    let start_time = Instant::now();
+    let service_type = ServiceType::new("_useful_devices", "_udp").unwrap();
+    let mut discovery = ServiceDiscovery::browse(service_type)
+        .unwrap()
+        .timeout(Duration::from_secs_f32(1.5));
 
-    while start_time.elapsed() < timeout_duration {
-        // Wait up to 500ms for the next event
-        match timeout(Duration::from_millis(500), receiver.recv_async()).await {
-            Ok(Ok(ServiceEvent::ServiceResolved(info))) => {
-                if let Some(ip) = info.get_addresses().iter().next() {
-                    let mut name = info.get_hostname().to_string();
+    let start_time = Instant::now();
+    while let Some(event) = discovery.next().await {
+        if start_time.elapsed() > Duration::from_secs_f32(1.5) {
+            break;
+        }
+        if let Ok(event) = event {
+            if let zeroconf::ServiceEvent::ServiceResolved(info) = event {
+                if let Some(ip) = info.addresses().iter().find(|ip| ip.is_ipv4()) {
+                    let mut name = info.name().to_string();
                     if name.ends_with(".local.") {
                         name = name.trim_end_matches(".local.").to_string();
                     }
                     if !servers.values().any(|(n, existing_ip, _)| existing_ip == ip && n == &name) {
-                        servers.insert(index, (name.clone(), *ip, 5000));
+                        servers.insert(index, (name.clone(), *ip, info.port()));
                         println!("{}: {} {}", index, name, ip);
                         index += 1;
                     }
                 }
             }
-            Ok(_) => {}
-            Err(_) => break, // Timeout on receiving
         }
     }
 
     servers
 }
-
 
 /*pub fn select_server(servers: &HashMap<usize, (String, IpAddr, u16)>) -> Option<(IpAddr, u16)> {
     if servers.is_empty() {
