@@ -4,6 +4,13 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::time;
 use tokio::sync::MutexGuard;
+use enigo::{
+    Button, Coordinate,
+    Direction::{Click, Press, Release},
+    Enigo, Key, Keyboard, Mouse, Settings,
+};
+use std::thread;
+use tokio::time::Duration;
 
 use std::mem;
 use windows::Win32::UI::Input::KeyboardAndMouse::{
@@ -30,94 +37,66 @@ pub fn set_volume(value: f32){
         println!("音量を{}に設定しました", value);
     }
 }
+//enigo使用バージョン
+pub fn send_key_combination(keys: &[Key]) {
+    let mut enigo = Enigo::new(&Default::default()).unwrap();
 
-pub fn send_key_combination(keys: &[VIRTUAL_KEY]) {
-    let len = keys.len() * 2;
-    let mut inputs = vec![INPUT {
-        r#type: INPUT_KEYBOARD,
-        Anonymous: unsafe { std::mem::zeroed() },
-    }; len];
-
-    unsafe {
-        // キーを押す
-        for (i, &key) in keys.iter().enumerate() {
-            let ki = KEYBDINPUT {
-                wVk: key,
-                wScan: 0,
-                dwFlags: KEYBD_EVENT_FLAGS(0), // 押下
-                time: 0,
-                dwExtraInfo: 0,
-            };
-            std::ptr::write(&mut inputs[i].Anonymous as *mut _ as *mut KEYBDINPUT, ki);
-            println!("Key pressed: {:?}", key); // デバッグログ
-        }
-
-        // キーを離す（逆順）
-        for (i, &key) in keys.iter().rev().enumerate() {
-            let ki = KEYBDINPUT {
-                wVk: key,
-                wScan: 0,
-                dwFlags: KEYEVENTF_KEYUP, // 解放
-                time: 0,
-                dwExtraInfo: 0,
-            };
-            std::ptr::write(&mut inputs[keys.len() + i].Anonymous as *mut _ as *mut KEYBDINPUT, ki);
-            println!("Key released: {:?}", key); // デバッグログ
-        }
-
-        // すべての入力を一度に送信
-        let result = SendInput(&inputs, std::mem::size_of::<INPUT>() as i32);
-        if result == 0 {
-            eprintln!("Failed to send input");
-        } else {
-            println!("Input sent successfully");
-        }
+    // キーを押す
+    for key in keys {
+        enigo.key(*key, Press);
+        println!("Key pressed: {:?}", key);
     }
-    std::thread::sleep(std::time::Duration::from_millis(200)); // ここで少し待機
+
+    // 少し待つ（必要に応じて調整）
+    thread::sleep(Duration::from_millis(50));
+
+    // キーを離す（逆順）
+    for key in keys.iter().rev() {
+        enigo.key(*key, Release);
+        println!("Key released: {:?}", key);
+    }
+
+    thread::sleep(Duration::from_millis(200));
 }
 
 fn send_ctrl_c() {
-    send_key_combination(&[VK_CONTROL, VIRTUAL_KEY(0x43)]);
+    send_key_combination(&[Key::Control, Key::Unicode('c')]);
 }
 
 fn send_ctrl_v() {
-    send_key_combination(&[VK_CONTROL, VIRTUAL_KEY(0x56)]);
+    send_key_combination(&[Key::Control, Key::Unicode('v')]);
 }
 
 fn send_ctrl_a() {
-    send_key_combination(&[VK_CONTROL, VIRTUAL_KEY(0x41)]);
+    send_key_combination(&[Key::Control, Key::Unicode('a')]);
 }
 
-/*fn send_alt_tab() {
-    send_key_combination(&[VK_MENU, VIRTUAL_KEY(0x09)]);
-}*/
-
 fn send_ctrl_shift_esc() {
-    send_key_combination(&[VK_CONTROL, VK_SHIFT, VK_ESCAPE]);
+    send_key_combination(&[Key::Control, Key::Shift, Key::Escape]);
 }
 
 fn send_windows_e() {
-    send_key_combination(&[VIRTUAL_KEY(0x5B), VIRTUAL_KEY(0x45)]);
+    send_key_combination(&[Key::Meta, Key::Unicode('e')]);
 }
 
 fn send_prtsc() {
-    send_key_combination(&[VIRTUAL_KEY(0x2C)]);
+    send_key_combination(&[Key::PrintScr]);
 }
 
 fn send_ctrl_s() {
-    send_key_combination(&[VK_CONTROL, VIRTUAL_KEY(0x53)]);
+    send_key_combination(&[Key::Control, Key::Unicode('s')]);
 }
 
 fn send_ctrl_p() {
-    send_key_combination(&[VK_CONTROL, VIRTUAL_KEY(0x50)]);
+    send_key_combination(&[Key::Control, Key::Unicode('p')]);
 }
 
 fn send_win_i() {
-    send_key_combination(&[VIRTUAL_KEY(0x5B), VIRTUAL_KEY(0x49)]);
+    send_key_combination(&[Key::Meta, Key::Unicode('i')]);
 }
 
 fn send_mute() {
-    send_key_combination(&[VIRTUAL_KEY(0xAD)]); // ミュートキー
+    send_key_combination(&[Key::VolumeMute]); 
 }
 
 pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {

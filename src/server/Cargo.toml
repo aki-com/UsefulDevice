@@ -16,6 +16,7 @@ winapi = {version = "0.3.9",features = ["winbase", "combaseapi", "mmdeviceapi", 
 windows-volume-control = "0.1.1"
 widestring = "1.2.0"
 windows = { version = "0.61.1", features = ["Win32_Media_Audio", "Win32_System_Com", "Win32_UI_Shell_PropertiesSystem","Win32_Foundation", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging"] }
+enigo = "0.3.0"
 tokio = { version = "1.31", features = ["full"] }
 
 

@@ -75,7 +75,7 @@ pub async fn start_server() {
 
     while let Ok((stream, addr)) = listener.accept().await {
         let current_connection_clone = Arc::clone(&current_connection); // ここでクローンする
-    
+        
         let mut conn_guard = current_connection.lock().await;
     
         if conn_guard.is_some() {
@@ -92,7 +92,7 @@ pub async fn start_server() {
         let stream: Arc<Mutex<TcpStream>> = Arc::new(Mutex::new(stream));
         *conn_guard = Some(Arc::clone(&stream)); // 接続状態を記録
         drop(conn_guard);
-    
+
         {
             let mut locked_stream = stream.lock().await;
             let _ = locked_stream.write_all(b"Hello from server!").await;
