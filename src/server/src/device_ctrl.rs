@@ -13,11 +13,9 @@ use std::thread;
 use tokio::time::Duration;
 
 use std::mem;
-use windows::Win32::UI::Input::KeyboardAndMouse::{
-    SendInput, INPUT, INPUT_KEYBOARD, INPUT_TYPE, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, VIRTUAL_KEY, VK_CONTROL, VK_ESCAPE, VK_MENU, VK_SHIFT
-};
 
-pub fn set_volume(value: f32){
+
+/*pub fn set_volume(value: f32){
     unsafe {
                 
         let mut controller = AudioController::init(None);
@@ -36,7 +34,7 @@ pub fn set_volume(value: f32){
         master_volume.unwrap().setVolume(value);
         println!("音量を{}に設定しました", value);
     }
-}
+}*/
 //enigo使用バージョン
 pub fn send_key_combination(keys: &[Key]) {
     let mut enigo = Enigo::new(&Default::default()).unwrap();
@@ -99,6 +97,14 @@ fn send_mute() {
     send_key_combination(&[Key::VolumeMute]); 
 }
 
+fn send_volume_up() {
+    send_key_combination(&[Key::VolumeUp]);
+}
+
+fn send_volume_down() {
+    send_key_combination(&[Key::VolumeDown]);
+}
+
 pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
     let mut buffer = [0; 512];
 
@@ -116,7 +122,7 @@ pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
                     _ if received.starts_with("volume ") => {
                         let volume_str = &received[7..]; // "volume "の後の部分を取得
                         if let Ok(volume_value) = volume_str.trim().parse::<f32>() {
-                            set_volume(volume_value);
+                            //set_volume(volume_value);
                             let _ = stream.write_all(b"Volume adjusted\n").await;
                         } else {
                             let _ = stream.write_all(b"Invalid volume value\n").await;
@@ -161,7 +167,7 @@ pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
                     }
                     "10" => {
                         println!("Command 10: mute");
-                        send_mute();
+                        send_volume_up();
                     }
                     _ => {
                         println!("Unknown command received");
