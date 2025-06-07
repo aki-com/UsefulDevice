@@ -23,7 +23,7 @@ pub fn send_key_combination(keys: &[Key]) {
 
     // キーを押す
     for key in keys {
-        enigo.key(*key, Press);
+        let _ = enigo.key(*key, Press);
         println!("Key pressed: {:?}", key);
     }
 
@@ -32,7 +32,7 @@ pub fn send_key_combination(keys: &[Key]) {
 
     // キーを離す（逆順）
     for key in keys.iter().rev() {
-        enigo.key(*key, Release);
+        let _ = enigo.key(*key, Release);
         println!("Key released: {:?}", key);
     }
 

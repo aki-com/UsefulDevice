@@ -1,9 +1,7 @@
 use zeroconf_tokio::MdnsServiceAsync;
-use zeroconf_tokio::{MdnsService, ServiceType, TxtRecord};
+use zeroconf_tokio::{MdnsService, ServiceType};
 use zeroconf_tokio::prelude::*;
 use zeroconf_tokio::bonjour::event_loop::BonjourEventLoop;
-use hostname;
-use std::collections::HashMap;
 use std::net::IpAddr;
 use local_ip_address::list_afinet_netifas;
 use tokio::net::{TcpListener, TcpStream};
@@ -12,6 +10,7 @@ use crate::device_ctrl::handle_client;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::time::Duration;
+
 async fn mdns_start() -> zeroconf_tokio::Result<BonjourEventLoop> {
     let service_type = ServiceType::new("useful_devices", "udp")?;
     let mut service = MdnsService::new(service_type , 8080);
@@ -112,6 +111,6 @@ pub async fn start_server() {
 
     // サービスを維持
     loop {
-        event_loop.poll(Duration::from_secs(1));
+        let _ = event_loop.poll(Duration::from_secs(1));
     }
 }
