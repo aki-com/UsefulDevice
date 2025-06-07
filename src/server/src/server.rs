@@ -1,4 +1,7 @@
-use mdns_sd::{ServiceDaemon, ServiceInfo};
+use zeroconf_tokio::MdnsServiceAsync;
+use zeroconf_tokio::{MdnsService, ServiceType, TxtRecord};
+use zeroconf_tokio::prelude::*;
+use zeroconf_tokio::bonjour::event_loop::BonjourEventLoop;
 use hostname;
 use std::collections::HashMap;
 use std::net::IpAddr;
@@ -8,19 +11,28 @@ use tokio::io::AsyncWriteExt;
 use crate::device_ctrl::handle_client;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-
+use tokio::time::Duration;
+async fn mdns_start() -> zeroconf_tokio::Result<BonjourEventLoop> {
+    let service_type = ServiceType::new("useful_devices", "udp")?;
+    let mut service = MdnsService::new(service_type , 8080);
+    let event_loop = service.register()?;
+    let mut service = MdnsServiceAsync::new(service)?;
+    let result = service.start().await?;
+    println!("Service registration started: {:?}", result);
+    Ok(event_loop)
+}
 pub async fn start_server() {
-    let mdns = ServiceDaemon::new().expect("Failed to create mdns daemon");
-
-    // デバイスの名前を取得
-    let device_name = hostname::get()
-        .expect("Failed to get hostname")
-        .to_string_lossy()
-        .into_owned();
-    
-    println!("Device Name: {}", device_name); 
-
     // ローカルIPv4アドレスを取得
+    let event_loop;
+    match mdns_start().await {
+        Ok(loop_handle) => {
+            event_loop = loop_handle;
+        }
+        Err(e) => {
+            eprintln!("Failed to start mDNS service: {}", e);
+            return;
+        }
+    }
     let ip: Option<IpAddr> = list_afinet_netifas()
     .expect("Failed to get local interfaces")
     .into_iter()
@@ -52,20 +64,8 @@ pub async fn start_server() {
 
     println!("Local IP: {}", ip);
 
-    // mDNSサービスを登録
-    let service_info = ServiceInfo::new(
-        "_useful_devices._udp.local.", // サービス名
-        &device_name,                  // インスタンス名
-        &format!("{}.local.", device_name), // ホスト名 (FQDN)
-        ip,                             // IPアドレス
-        5000,                           // ポート番号
-        HashMap::new(),                  // TXTレコード（今回は空）
-    )
-    .expect("Failed to create mDNS service info");
 
-    let _service_handle = mdns.register(service_info).expect("Failed to register mDNS service");
 
-    println!("mDNS service registered: {} on {}", device_name, ip);
 
     // サーバーのポート5000でリッスン開始
     let listener = TcpListener::bind((ip, 5000)).await.unwrap();
@@ -112,6 +112,6 @@ pub async fn start_server() {
 
     // サービスを維持
     loop {
-        std::thread::sleep(std::time::Duration::from_secs(10));
+        event_loop.poll(Duration::from_secs(1));
     }
 }

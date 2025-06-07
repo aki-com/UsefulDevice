@@ -1,5 +1,4 @@
-use winapi::um::winuser::VK_LWIN;
-use windows_volume_control::AudioController;
+
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::time;
@@ -83,9 +82,13 @@ fn send_ctrl_shift_esc() {
 fn send_windows_e() {
     send_key_combination(&[Key::Meta, Key::Unicode('e')]);
 }
-
+#[cfg(target_os = "windows")]
 fn send_prtsc() {
     send_key_combination(&[Key::PrintScr]);
+}
+#[cfg(target_os = "macos")]
+fn send_prtsc() {
+    send_key_combination(&[Key::Meta, Key::Shift,Key::Unicode('3')]); // MacではCommand + 3でスクリーンショット
 }
 
 fn send_ctrl_s() {
@@ -147,6 +150,7 @@ pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
                     "3" => {
                         println!("Command 3: Print Screen");
                         send_prtsc();
+                        let _ = stream.write_all(b"Print Screen command sent\n").await;
                     }
                     "4" => {
                         println!("Command 4: Ctrl+S");
