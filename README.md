@@ -18,7 +18,7 @@
  <li>
  aarch64-apple-darwin
 
- # windows
+ # About Windows
  <li>
  install llvm
  <li>
