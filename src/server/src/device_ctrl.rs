@@ -167,7 +167,15 @@ pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
                     }
                     "10" => {
                         println!("Command 10: mute");
+                        send_mute();
+                    }
+                    "11" => {
+                        println!("Command 11: volume up");
                         send_volume_up();
+                    }
+                    "12" => {
+                        println!("Command 12: volume down");
+                        send_volume_down();
                     }
                     _ => {
                         println!("Unknown command received");

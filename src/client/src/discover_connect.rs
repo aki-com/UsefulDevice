@@ -24,7 +24,8 @@ pub async fn discover_server() -> HashMap<usize, (String, IpAddr, u16)> {
         // Wait up to 500ms for the next event
         match timeout(Duration::from_millis(500), receiver.recv_async()).await {
             Ok(Ok(ServiceEvent::ServiceResolved(info))) => {
-                if let Some(ip) = info.get_addresses().iter().next() {
+                // IPv4アドレスのみを取得
+                if let Some(ip) = info.get_addresses().iter().find(|addr| addr.is_ipv4()) {
                     let mut name = info.get_hostname().to_string();
                     if name.ends_with(".local.") {
                         name = name.trim_end_matches(".local.").to_string();
