@@ -36,6 +36,13 @@ use std::mem;
     }
 }*/
 //enigo使用バージョン
+
+const CTRL: Key = if cfg!(target_os = "macos") {
+    Key::Meta
+} else {
+    Key::Control
+};
+
 pub fn send_key_combination(keys: &[Key]) {
     let mut enigo = Enigo::new(&Default::default()).unwrap();
 
@@ -58,19 +65,19 @@ pub fn send_key_combination(keys: &[Key]) {
 }
 
 fn send_ctrl_c() {
-    send_key_combination(&[Key::Control, Key::Unicode('c')]);
+    send_key_combination(&[CTRL, Key::Unicode('c')]);
 }
 
 fn send_ctrl_v() {
-    send_key_combination(&[Key::Control, Key::Unicode('v')]);
+    send_key_combination(&[CTRL, Key::Unicode('v')]);
 }
 
 fn send_ctrl_a() {
-    send_key_combination(&[Key::Control, Key::Unicode('a')]);
+    send_key_combination(&[CTRL, Key::Unicode('a')]);
 }
 
 fn send_ctrl_shift_esc() {
-    send_key_combination(&[Key::Control, Key::Shift, Key::Escape]);
+    send_key_combination(&[CTRL, Key::Shift, Key::Escape]);
 }
 
 fn send_windows_e() {
@@ -82,11 +89,11 @@ fn send_prtsc() {
 }
 
 fn send_ctrl_s() {
-    send_key_combination(&[Key::Control, Key::Unicode('s')]);
+    send_key_combination(&[CTRL, Key::Unicode('s')]);
 }
 
 fn send_ctrl_p() {
-    send_key_combination(&[Key::Control, Key::Unicode('p')]);
+    send_key_combination(&[CTRL, Key::Unicode('p')]);
 }
 
 fn send_win_i() {
