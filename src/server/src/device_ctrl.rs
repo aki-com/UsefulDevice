@@ -1,40 +1,15 @@
-use winapi::um::winuser::VK_LWIN;
-use windows_volume_control::AudioController;
+#![allow(dead_code)]
+
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
-use tokio::time;
 use tokio::sync::MutexGuard;
 use enigo::{
-    Button, Coordinate,
-    Direction::{Click, Press, Release},
-    Enigo, Key, Keyboard, Mouse, Settings,
+    Direction::{Press, Release},
+    Enigo, Key, Keyboard
 };
 use std::thread;
 use tokio::time::Duration;
 
-use std::mem;
-
-
-/*pub fn set_volume(value: f32){
-    unsafe {
-                
-        let mut controller = AudioController::init(None);
-        controller.GetSessions();
-        controller.GetDefaultAudioEnpointVolumeControl();
-        controller.GetAllProcessSessions();
-        let test = controller.get_all_session_names();
-
-        /*println!("{:?}",test);
-        let discord_session = controller.get_session_by_name("Discord".to_string());
-        println!("{:?}",discord_session.unwrap().getVolume());
-        discord_session.unwrap().setVolume(0.5);*/
-        println!("{:?}",test);
-        let master_volume = controller.get_session_by_name("master".to_string());
-        println!("{:?}",master_volume.unwrap().getVolume());
-        master_volume.unwrap().setVolume(value);
-        println!("音量を{}に設定しました", value);
-    }
-}*/
 //enigo使用バージョン
 
 const CTRL: Key = if cfg!(target_os = "macos") {
@@ -126,16 +101,7 @@ pub async fn handle_client(mut stream: MutexGuard<'_, TcpStream>) {
                 println!("Received command: {}", received);
 
                 match received.as_str() {
-                    _ if received.starts_with("volume ") => {
-                        let volume_str = &received[7..]; // "volume "の後の部分を取得
-                        if let Ok(volume_value) = volume_str.trim().parse::<f32>() {
-                            //set_volume(volume_value);
-                            let _ = stream.write_all(b"Volume adjusted\n").await;
-                        } else {
-                            let _ = stream.write_all(b"Invalid volume value\n").await;
-                        }
-                    }
-
+                    
                     "1" => {
                         println!("Command 1: ctrl_shift_esc");
                         send_ctrl_shift_esc();

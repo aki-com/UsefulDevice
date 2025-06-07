@@ -1,6 +1,5 @@
 mod device_ctrl;
-use enigo::{Enigo, Key};
-use windows::Win32::UI::Input::KeyboardAndMouse::VIRTUAL_KEY;
+use enigo::Key;
 
 pub fn server_test(){
     println!("server_test");
