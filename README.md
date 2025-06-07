@@ -17,3 +17,13 @@
  ## mac
  <li>
  aarch64-apple-darwin
+
+ # windows
+ <li>
+ install llvm
+ <li>
+ winget install --scope machine LLVM.LLVM
+ <li>
+ please go through the path
+ <li>
+ Please try your best to download and install Bonjour. I don't know if it's necessary though.
