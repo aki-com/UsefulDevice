@@ -7,6 +7,6 @@ name = "ud_client"
 path = "src/lib.rs"
 [dependencies]
 
-mdns-sd ="0.13.9"
+zeroconf-tokio = "0.2.0"
 tokio = { version = "1.45.1", features = ["full"] }
 once_cell = "1.21.3"

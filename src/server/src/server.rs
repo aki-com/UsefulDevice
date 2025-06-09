@@ -13,6 +13,7 @@ use tokio::time::Duration;
 
 async fn mdns_start() -> zeroconf_tokio::Result<BonjourEventLoop> {
     let service_type = ServiceType::new("useful_devices", "udp")?;
+
     let mut service = MdnsService::new(service_type , 8080);
     let event_loop = service.register()?;
     let mut service = MdnsServiceAsync::new(service)?;

@@ -20,7 +20,6 @@ pub async fn get_server() -> HashMap<usize, (String, IpAddr, u16)> {
     discover_server().await
 
 }
-
 pub async fn change_server(server_map: (String, IpAddr, u16)) {
     
     let (_name, ip, port) = server_map.clone();
