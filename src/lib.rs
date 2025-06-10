@@ -39,6 +39,7 @@ async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std
 
 #[cfg(target_os = "ios")]
 #[no_mangle]
+/*
 pub extern "C" fn ios_main() {
     // Create a local task set for the UI thread
     let local = tokio::task::LocalSet::new();
@@ -102,6 +103,31 @@ async fn async_main() -> Result<(), Box<dyn std::error::Error>> {
             });
         });
     }
+
+    ui.run()?;
+
+    Ok(())
+}
+*/
+#[tokio::main]
+async fn ios_main() -> Result<(), Box<dyn Error>> {
+    
+
+    let ui = AppWindow::new().unwrap();
+    let ui_weak = ui.as_weak();
+
+    
+    ui.on_list_update(move || {
+        let ui_weak = ui_weak.clone();
+        list_update(ui_weak);
+    });
+
+    ui.on_server_connecting(|index| {
+        server_connecting(index);
+    });
+    ui.on_cmd_send(|input| {
+        cmd_send(input);
+    });
 
     ui.run()?;
 
