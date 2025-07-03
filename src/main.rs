@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     ui.on_list_update(move || {
         let ui_weak = ui_weak.clone();
         list_update(ui_weak);
-    });
+    }); 
 
     ui.on_server_connecting(|index| {
         server_connecting(index);

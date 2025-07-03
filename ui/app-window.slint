@@ -38,7 +38,7 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
             
                             clicked => {
-                                root.cmd_send("1");
+                                root.cmd_send("ctrl+Shift+Esc");
                             }
                         }
                         Button {
@@ -46,16 +46,16 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
                         
                             clicked => {
-                                root.cmd_send("2");
+                                root.cmd_send("win+e");
                             }
                         }
                         Button {
-                            text: "Ptr Sc";
+                            text: "Prt Sc";
                             width: Square_size * 0.25;
             
             
                             clicked => {
-                                root.cmd_send("3");
+                                root.cmd_send("Prtsc");
                             }
                         }
                     }
@@ -67,7 +67,7 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("4");
+                                root.cmd_send("Ctrl+s");
                             }
                         }
                         Button {
@@ -75,7 +75,7 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("5");
+                                root.cmd_send("Ctrl+p");
                             }
                         }
                         Button {
@@ -83,7 +83,7 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("6");
+                                root.cmd_send("win+i");
                             }
                         }
                     }
@@ -95,7 +95,7 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("7");            
+                                root.cmd_send("Ctrl+c");            
                             }
                         }
                         Button {
@@ -103,7 +103,7 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("8");
+                                root.cmd_send("Ctrl+v");
                             }
                         }
                         Button {
@@ -111,7 +111,7 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("9");
+                                root.cmd_send("Ctrl+a");
                             }
                         }
                     }   
@@ -121,10 +121,8 @@ export component AppWindow inherits Window {
                             text: "mute";
                             width: Square_size * 0.25;
 
-
-
                             clicked => {
-                                root.cmd_send("10");
+                                root.cmd_send("mute");
                             }
 
                         }

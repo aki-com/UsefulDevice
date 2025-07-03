@@ -3,17 +3,6 @@
 version = 4
 
 [[package]]
-name = "Useful_Device"
-version = "0.1.0"
-dependencies = [
- "android-activity 0.6.0",
- "slint",
- "slint-build",
- "tokio",
- "ud_client",
-]
-
-[[package]]
 name = "ab_glyph"
 version = "0.2.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4938,9 +4927,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.45.0"
+version = "1.45.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2513ca694ef9ede0fb23fe71a4ee4107cb102b9dc1930f6d0fd77aae068ae165"
+checksum = "75ef51a33ef1da925cea3e4eb122833cb377c61439ca401b770f54902b806779"
 dependencies = [
  "backtrace",
  "bytes",
@@ -5184,6 +5173,17 @@ dependencies = [
  "form_urlencoded",
  "idna",
  "percent-encoding",
+]
+
+[[package]]
+name = "useful_device"
+version = "0.1.0"
+dependencies = [
+ "android-activity 0.6.0",
+ "slint",
+ "slint-build",
+ "tokio",
+ "ud_client",
 ]
 
 [[package]]
