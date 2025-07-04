@@ -1,6 +1,5 @@
 import { Device } from "device_search.slint";
-import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget} from "std-widgets.slint";
-
+import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget, LineEdit} from "std-widgets.slint";
 
 export global App_Data {
     in-out property <[Device]> devices:
@@ -13,13 +12,34 @@ export global App_Data {
             ];
 }
 
+/*
+<修正点>
+・検索バーを追加
+・検索ボタンを追加
+・検索バーに入力された文字をstring型で格納するプロパティを追加
+・ボタンを正方形になるように修正
+・構造理解のため、更新ボタンを下に配置したものを作成
+・三項演算子をmin関数に変更
+・スライドバーを立て中央にしたい
+・
+
+*/
 
 export component AppWindow inherits Window {
     callback list_update();
     callback server_connecting(Device);
     callback cmd_send(string);
 
-    in-out property <length> Square_size: (root.width > root.height) ? root.height : root.width;
+
+    in-out property <string> search_IP_address:"";//検索バーの値が格納される
+
+    /*
+    バインディングループの解決方法
+    1.式をボタンサイズの指定の際に直接入れてしまう→バインディングループは絶対発生しない 
+    2. 特になし
+    ・root.widthをプロパティにバインドしたものをwidth:で使用したらバインディングループが発生する？
+    */
+    in-out property <length> Square_size : min(root.width,root.height);
     in-out property <[Device]> devices;
     preferred-width: 100%;
     preferred-height: 100%;
@@ -29,13 +49,12 @@ export component AppWindow inherits Window {
         Tab {
             VerticalBox {
                 alignment: center;
-
                     HorizontalBox {
                         alignment: center;
-                        height: Square_size * 0.25;
                         Button {
                             text: "T M";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
             
                             clicked => {
                                 root.cmd_send("1");
@@ -44,6 +63,7 @@ export component AppWindow inherits Window {
                         Button {
                             text: "Explorer";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
                         
                             clicked => {
                                 root.cmd_send("2");
@@ -52,6 +72,7 @@ export component AppWindow inherits Window {
                         Button {
                             text: "Ptr Sc";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
             
             
                             clicked => {
@@ -61,10 +82,10 @@ export component AppWindow inherits Window {
                     }
                     HorizontalBox {
                         alignment: center;
-                        height: Square_size * 0.25;
                         Button {
                             text: "Ctrl+S";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
                                 root.cmd_send("4");
@@ -73,6 +94,7 @@ export component AppWindow inherits Window {
                         Button {
                             text: "Ctrl+P";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
                                 root.cmd_send("5");
@@ -81,6 +103,7 @@ export component AppWindow inherits Window {
                         Button {
                             text: "win+i";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
                                 root.cmd_send("6");
@@ -89,10 +112,10 @@ export component AppWindow inherits Window {
                     }
                     HorizontalBox {
                         alignment: center;
-                        height: Square_size * 0.25;
                         Button {
                             text: "Copy";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
                                 root.cmd_send("7");            
@@ -101,6 +124,7 @@ export component AppWindow inherits Window {
                         Button {
                             text: "Paste";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
                                 root.cmd_send("8");
@@ -109,6 +133,7 @@ export component AppWindow inherits Window {
                         Button {
                             text: "Ctrl+A";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
                                 root.cmd_send("9");
@@ -121,8 +146,6 @@ export component AppWindow inherits Window {
                             text: "mute";
                             width: Square_size * 0.25;
 
-
-
                             clicked => {
                                 root.cmd_send("10");
                             }
@@ -131,6 +154,7 @@ export component AppWindow inherits Window {
                         Slider {
                             width: Square_size * 0.5;
                             height: 20px;
+
                             maximum: 1;
                             minimum: 0;
                             released(position) => {
@@ -141,24 +165,43 @@ export component AppWindow inherits Window {
                 }
             }
         }
-
+        //更新ボタンが横にあるバージョン
         Tab {
             HorizontalBox {
-                ListView {
-                    for data in devices: Rectangle {
+                 VerticalBox{
+                    HorizontalBox {
                         preferred-height: 50px;
                         preferred-width: 100%;
-                        Button {
-                            width: 100%;
-                            text: data.device_name + "                " + data.IP_address;
-                            clicked => {
-                                root.server_connecting(data);
+                        LineEdit{
+                            width:75%;
+                            accessible-placeholder-text: "IPアドレスを入力";
+
+                            edited(text) =>{
+                                root.search_IP_address=text;
                             }
-        
-        
+                        }
+                        Button{
+                            text:"検索";
+
+                            clicked =>{
+                                //処理
+                                debug("clicked:"+root.search_IP_address);
+                            }
                         }
                     }
-        
+                    ListView {
+                        for data in devices: Rectangle {
+                            preferred-height: 50px;
+                            preferred-width: 100%;
+                            Button {
+                                width: 100%;
+                                text: data.device_name + "                " + data.IP_address;
+                                clicked => {
+                                    root.server_connecting(data);
+                                }
+                            }
+                        }
+                    }
                 }
                 Button {
                     text: "更新";
@@ -168,6 +211,56 @@ export component AppWindow inherits Window {
                 }
             }
         }
+        //更新ボタンが下にあるバージョン
+        /*
+        Tab {
+            VerticalBox {
+                HorizontalBox {
+                    alignment:center;
+                    preferred-height: 50px;
+                    preferred-width: 100%;
+                    LineEdit{
+                        width:80%;
+                        accessible-placeholder-text: "IPアドレスを入力";
+
+                        edited(text) =>{
+                            root.search_IP_address=text;
+                        }
+                    }
+                    Button{
+                        text:"検索";
+                        
+                        clicked =>{
+                            //処理
+                            debug("clicked:"+root.search_IP_address);
+                        }
+                    }
+                }
+                ListView {
+                     for data in devices: Rectangle {
+                        preferred-height: 50px;
+                        preferred-width: 100%;
+                        Button {
+                            width: 100%;
+                            text: data.device_name + "                " + data.IP_address;
+                            clicked => {
+                                root.server_connecting(data);
+                            }
+                        }
+                    }
+                }
+            }
+            VerticalBox {
+                alignment:end;
+                Button {
+                    text: "更新";
+                    clicked => {
+                        root.list_update();
+                    }
+                }
+            }
+        }
+        */
     }   
 }
 /*
