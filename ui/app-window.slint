@@ -187,11 +187,10 @@ export component AppWindow inherits Window {
                             }
                         }
                         Button{
-                            text:"検索";
+                            text:"接続";
 
                             clicked =>{
-                                //処理
-                                debug("clicked:"+root.search_IP_address);
+                                root.server_connecting({ device_name: "Custom", IP_address: root.search_IP_address});
                             }
                         }
                     }
