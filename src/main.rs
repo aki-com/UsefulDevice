@@ -9,7 +9,7 @@ use slint_fanc::{cmd_send, list_update, server_connecting};
 
 slint::include_modules!();
 
-
+    
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 #[tokio::main]

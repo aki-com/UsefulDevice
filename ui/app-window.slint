@@ -66,129 +66,83 @@ export component AppWindow inherits Window {
         Tab {
             VerticalBox {
                 alignment: center;
-                    HorizontalBox {
-                        alignment: center;
-                        Button {
-                            text: "T M";
-                            width: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            height: Square_size * 0.25;
-            
-                            clicked => {
-                                root.cmd_send("ctrl+Shift+Esc");
-                            }
-                        }
-                        Button {
-                            text: "Explorer";
-                            width: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                        
-                            clicked => {
-                                root.cmd_send("win+e");
-                            }
-                        }
-                        Button {
-                            text: "Prt Sc";
-                            width: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            height: Square_size * 0.25;
-            
-            
-                            clicked => {
-                                root.cmd_send("Prtsc");
-                            }
-                        }
+                GridLayout {
+                    spacing: 4px;
+                    padding: 10px;
+                    width: 80%;
+                    height: 80%;
+                    Button {
+                        row: 0; col: 0;
+                        text: "T M";
+                            
+                        clicked => { root.cmd_send("ctrl+Shift+Esc");}
                     }
-                    HorizontalBox {
-                        alignment: center;
-                        Button {
-                            text: "Ctrl+S";
-                            width: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            height: Square_size * 0.25;
+                    Button {
+                        row: 1; col: 0;
+                        text: "Ctrl+S";
                             
-                            clicked => {
-                                root.cmd_send("Ctrl+s");
-                            }
-                        }
-                        Button {
-                            text: "Ctrl+P";
-                            width: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            
-                            clicked => {
-                                root.cmd_send("Ctrl+p");
-                            }
-                        }
-                        Button {
-                            text: "win+i";
-                            width: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            
-                            clicked => {
-                                root.cmd_send("win+i");
-                            }
-                        }
+                        clicked => {root.cmd_send("Ctrl+s");}
                     }
-                    HorizontalBox {
-                        alignment: center;
-                        Button {
-                            text: "Copy";
-                            width: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            height: Square_size * 0.25;
+                    Button {
+                        row: 2; col: 0;
+                        text: "Copy";
                             
-                            clicked => {
-                                root.cmd_send("Ctrl+c");            
-                            }
-                        }
-                        Button {
-                            text: "Paste";
-                            width: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            
-                            clicked => {
-                                root.cmd_send("Ctrl+v");
-                            }
-                        }
-                        Button {
-                            text: "Ctrl+A";
-                            width: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            height: Square_size * 0.25;
-                            
-                            clicked => {
-                                root.cmd_send("Ctrl+a");
-                            }
-                        }
-                    }   
-                    HorizontalBox {
-                        alignment: center;
-                        Button {
-                            text: "mute";
-                            width: Square_size * 0.25;
+                        clicked => {root.cmd_send("Ctrl+c");}
+                    }
 
-                            clicked => {
-                                root.cmd_send("mute");
-                            }
+                    // 2列目
+                    Button {
+                        row: 0; col: 1;
+                        text: "Explorer";
+                            
+                        clicked => {root.cmd_send("win+e");}
+                    }
+                    Button {
+                        row: 1; col: 1;
+                        text: "Ctrl+P";
+                            
+                        clicked => {root.cmd_send("Ctrl+p");}
+                    }
+                    Button {
+                        row: 2; col: 1;
+                        text: "Paste";
+                            
+                        clicked => {root.cmd_send("Ctrl+v");}
+                    }
+
+                    // 3列目
+                    Button {
+                        row: 0; col: 2;
+                        text: "Prt Sc";
+                            
+                        clicked => {root.cmd_send("Prtsc");}
+                    }
+                    Button {
+                        row: 1; col: 2;
+                        text: "win+i";
+                            
+                        clicked => {root.cmd_send("win+i");}
+                    }
+                    Button {
+                        row: 2; col: 2;
+                        text: "Ctrl+A";
+                            
+                        clicked => {root.cmd_send("Ctrl+a");}
+                    }
+                    HorizontalBox {
+                        alignment: center;
+                        row: 3; col: 0; 
+                        Button {
+                        text: "mute";
+                        clicked => {
+                            root.cmd_send("mute");
+                        }
 
                         }
                         Slider {
-                            width: Square_size * 0.5;
-                            height: 20px;
-
-
-                            maximum: 1;
-                            minimum: 0;
-                            released(position) => {
-                                root.cmd_send("volume " + position);
-                            }
+                        height: 20px;
                         }
-                    
+                    }
                 }
             }
         }
