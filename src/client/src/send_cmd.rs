@@ -1,27 +1,11 @@
 use tokio::net::TcpStream;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
-pub async fn process_input(stream: &mut TcpStream, input: &str) {
-    // コマンド送信部分は変更なし
-    if let Some(volume_command) = input.strip_prefix("volume ") {
-        if let Ok(volume_change) = volume_command.trim().parse::<f32>() {
-            if let Err(e) = stream.write_all(format!("volume {}\n", volume_change).as_bytes()).await {
-                eprintln!("データの送信に失敗しました: {}", e);
-                return;
-            }
-        } else {
-            println!("有効な音量調整値を入力してください。");
-            return;
-        }
-    } else if let Ok(num) = input.parse::<u32>() {
-        if let Err(e) = stream.write_all(format!("{}\n", num).as_bytes()).await {
+pub async fn process_input(stream: &mut TcpStream, input: &str) {     
+    if let Err(e) = stream.write_all(format!("{}\n", input.trim()).as_bytes()).await {
             eprintln!("データの送信に失敗しました: {}", e);
             return;
         }
-    } else {
-        println!("有効な数字、音量コマンド、または 'exit' で終了します。");
-        return;
-    }
 
     // 改善されたレスポンス読み取り部分
     let mut response = String::new();

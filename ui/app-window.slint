@@ -1,6 +1,11 @@
 import { Device } from "device_search.slint";
 import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget, LineEdit} from "std-widgets.slint";
 
+export struct Cmd_Custom {
+    label: string,
+    command: string,
+}
+
 export global App_Data {
     in-out property <[Device]> devices:
         [
@@ -12,6 +17,18 @@ export global App_Data {
             ];
 }
 
+/*
+<修正点>
+・検索バーを追加
+・検索ボタンを追加
+・検索バーに入力された文字をstring型で格納するプロパティを追加
+・ボタンを正方形になるように修正
+・構造理解のため、更新ボタンを下に配置したものを作成
+・三項演算子をmin関数に変更
+・スライドバーを立て中央にしたい
+・
+
+*/
 /*
 <修正点>
 ・検索バーを追加
@@ -55,28 +72,31 @@ export component AppWindow inherits Window {
                             text: "T M";
                             width: Square_size * 0.25;
                             height: Square_size * 0.25;
+                            height: Square_size * 0.25;
             
                             clicked => {
-                                root.cmd_send("1");
+                                root.cmd_send("ctrl+Shift+Esc");
                             }
                         }
                         Button {
                             text: "Explorer";
                             width: Square_size * 0.25;
                             height: Square_size * 0.25;
+                            height: Square_size * 0.25;
                         
                             clicked => {
-                                root.cmd_send("2");
+                                root.cmd_send("win+e");
                             }
                         }
                         Button {
-                            text: "Ptr Sc";
+                            text: "Prt Sc";
                             width: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             height: Square_size * 0.25;
             
             
                             clicked => {
-                                root.cmd_send("3");
+                                root.cmd_send("Prtsc");
                             }
                         }
                     }
@@ -86,27 +106,30 @@ export component AppWindow inherits Window {
                             text: "Ctrl+S";
                             width: Square_size * 0.25;
                             height: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("4");
+                                root.cmd_send("Ctrl+s");
                             }
                         }
                         Button {
                             text: "Ctrl+P";
                             width: Square_size * 0.25;
                             height: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("5");
+                                root.cmd_send("Ctrl+p");
                             }
                         }
                         Button {
                             text: "win+i";
                             width: Square_size * 0.25;
                             height: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("6");
+                                root.cmd_send("win+i");
                             }
                         }
                     }
@@ -116,27 +139,30 @@ export component AppWindow inherits Window {
                             text: "Copy";
                             width: Square_size * 0.25;
                             height: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("7");            
+                                root.cmd_send("Ctrl+c");            
                             }
                         }
                         Button {
                             text: "Paste";
                             width: Square_size * 0.25;
                             height: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("8");
+                                root.cmd_send("Ctrl+v");
                             }
                         }
                         Button {
                             text: "Ctrl+A";
                             width: Square_size * 0.25;
                             height: Square_size * 0.25;
+                            height: Square_size * 0.25;
                             
                             clicked => {
-                                root.cmd_send("9");
+                                root.cmd_send("Ctrl+a");
                             }
                         }
                     }   
@@ -147,13 +173,14 @@ export component AppWindow inherits Window {
                             width: Square_size * 0.25;
 
                             clicked => {
-                                root.cmd_send("10");
+                                root.cmd_send("mute");
                             }
 
                         }
                         Slider {
                             width: Square_size * 0.5;
                             height: 20px;
+
 
                             maximum: 1;
                             minimum: 0;
@@ -165,7 +192,7 @@ export component AppWindow inherits Window {
                 }
             }
         }
-        //更新ボタンが横にあるバージョン
+        //更新ボタンが横にあるバージョン        //更新ボタンが横にあるバージョン
         Tab {
             HorizontalBox {
                  VerticalBox{
@@ -181,11 +208,10 @@ export component AppWindow inherits Window {
                             }
                         }
                         Button{
-                            text:"検索";
+                            text:"接続";
 
                             clicked =>{
-                                //処理
-                                debug("clicked:"+root.search_IP_address);
+                                root.server_connecting({ device_name: "Custom", IP_address: root.search_IP_address});
                             }
                         }
                     }
