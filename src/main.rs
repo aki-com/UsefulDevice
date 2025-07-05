@@ -1,15 +1,14 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod slint_fanc;
-
+use slint_fanc::{cmd_send, list_update, server_connecting};
 
 use std::error::Error;
 
-use slint_fanc::{cmd_send, list_update, server_connecting};
 
 slint::include_modules!();
 
-    
+
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 #[tokio::main]
