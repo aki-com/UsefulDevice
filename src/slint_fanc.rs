@@ -33,7 +33,14 @@ pub fn list_update(ui_weak: Weak<AppWindow>) {
 pub fn server_connecting(index: Device) {
     let Device { device_name, IP_address } = index;
     let name = device_name.to_string();
-    let ip: IpAddr = IP_address.to_string().parse().unwrap();
+    //let ip: IpAddr = IP_address.to_string().parse().unwrap();のunwrap();なし
+    let ip: IpAddr = match IP_address.to_string().parse() {
+        Ok(ip) => ip,
+        Err(_) => {
+            eprintln!("Invalid IP address: {}", IP_address);
+            return;
+        }
+    };
     let port = 5000;
 
     println!("Connecting to server: {} {} {}", name, ip, port);
