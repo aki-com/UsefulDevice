@@ -156,10 +156,8 @@ export component AppWindow inherits Window {
                         LineEdit{
                             width:75%;
                             accessible-placeholder-text: "IPアドレスを入力";
-
-                            edited(text) =>{
-                                root.search_IP_address=text;
-                            }
+                            text <=> root.search_IP_address;
+                            
                         }
                         Button{
                             text:"接続";
