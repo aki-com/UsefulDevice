@@ -14,20 +14,8 @@ export global App_Data {
 
 /*
 <やること>
-・音量のスライドバーではなくUpボタンDownボタンに切り替える
-　→＋ボタンとーボタンに切り替えた
-
-・音量を格納するプロパティ必要？
-　→volumeプロパティを使用
-
-・音量の上げ・下げ幅を定義
-　→delta_volumeプロパティを使用
-
-・muteされているかをわかりやすいように変更する？
-
-・GridLayoutの使用を提案
-　→サンプルは作成済み
-　→均等揃えされていない問題を解決
+・ボタンの比率を格納するプロパティ？
+・
 */
 
 export component AppWindow inherits Window {
@@ -145,7 +133,7 @@ export component AppWindow inherits Window {
                         Row{
                             Button {//muteボタン
                                 text: "mute";
-                                height:Square_size*0.12;
+                                height:Square_size*0.11;
 
                                 clicked => {
                                     root.cmd_send("mute");
@@ -154,18 +142,18 @@ export component AppWindow inherits Window {
                             }
                             Button{//＋ボタン
                                 text:"＋";
-                                height:Square_size*0.12;
+                                height:Square_size*0.11;
 
                                 clicked => {
-                                    root.cmd_send("volUp");
+                                    root.cmd_send("volup");
                                 }
                             }
                             Button {//ーボタン
                                 text:"ー";
-                                height:Square_size*0.12;
+                                height:Square_size*0.11;
 
                                 clicked => {
-                                    root.cmd_send("volDown");
+                                    root.cmd_send("voldown");
                                 }
                             }
                         }
