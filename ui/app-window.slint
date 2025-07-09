@@ -1,10 +1,5 @@
 import { Device } from "device_search.slint";
-import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget, LineEdit} from "std-widgets.slint";
-
-export struct Cmd_Custom {
-    label: string,
-    command: string,
-}
+import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget, LineEdit, SpinBox} from "std-widgets.slint";
 
 export global App_Data {
     in-out property <[Device]> devices:
@@ -18,28 +13,21 @@ export global App_Data {
 }
 
 /*
-<修正点>
-・検索バーを追加
-・検索ボタンを追加
-・検索バーに入力された文字をstring型で格納するプロパティを追加
-・ボタンを正方形になるように修正
-・構造理解のため、更新ボタンを下に配置したものを作成
-・三項演算子をmin関数に変更
-・スライドバーを立て中央にしたい
-・
+<やること>
+・音量のスライドバーではなくUpボタンDownボタンに切り替える
+　→＋ボタンとーボタンに切り替えた
 
-*/
-/*
-<修正点>
-・検索バーを追加
-・検索ボタンを追加
-・検索バーに入力された文字をstring型で格納するプロパティを追加
-・ボタンを正方形になるように修正
-・構造理解のため、更新ボタンを下に配置したものを作成
-・三項演算子をmin関数に変更
-・スライドバーを立て中央にしたい
-・
+・音量を格納するプロパティ必要？
+　→volumeプロパティを使用
 
+・音量の上げ・下げ幅を定義
+　→delta_volumeプロパティを使用
+
+・muteされているかをわかりやすいように変更する？
+
+・GridLayoutの使用を提案
+　→サンプルは作成済み
+　→均等揃えされていない問題を解決
 */
 
 export component AppWindow inherits Window {
@@ -47,106 +35,167 @@ export component AppWindow inherits Window {
     callback server_connecting(Device);
     callback cmd_send(string);
 
+    property <int> max_volume:100;
+    property <int> delta_volume:5;
+    in-out property <int> volume;
 
-    in-out property <string> search_IP_address:"";//検索バーの値が格納される
-
-    /*
-    バインディングループの解決方法
-    1.式をボタンサイズの指定の際に直接入れてしまう→バインディングループは絶対発生しない 
-    2. 特になし
-    ・root.widthをプロパティにバインドしたものをwidth:で使用したらバインディングループが発生する？
-    */
+    in-out property <string> search_IP_address:"";
     in-out property <length> Square_size : min(root.width,root.height);
+    
     in-out property <[Device]> devices;
     preferred-width: 100%;
     preferred-height: 100%;
     min-height: 600px;
     min-width: 300px;
     TabWidget {
-        Tab {
-            VerticalBox {
+
+        Tab{
+            VerticalBox{//縦方向中央揃え
                 alignment: center;
-                GridLayout {
-                    spacing: 4px;
-                    padding: 10px;
-                    width: 80%;
-                    height: 80%;
-                    Button {
-                        row: 0; col: 0;
-                        text: "T M";
-                            
-                        clicked => { root.cmd_send("ctrl+Shift+Esc");}
-                    }
-                    Button {
-                        row: 1; col: 0;
-                        text: "Ctrl+S";
-                            
-                        clicked => {root.cmd_send("Ctrl+s");}
-                    }
-                    Button {
-                        row: 2; col: 0;
-                        text: "Copy";
-                            
-                        clicked => {root.cmd_send("Ctrl+c");}
+                HorizontalBox {//横方向中央揃え
+                    alignment:center;
+
+                    GridLayout{
+                        spacing:8px;
+
+                        Row{
+                            Button {//TMボタン
+                                text: "T M";
+                                width: Square_size * 0.25;
+                                height: Square_size * 0.25;
+                    
+                                    clicked => {
+                                        root.cmd_send("1");
+                                    }
+                            }
+                            Button {//Explorerボタン
+                                text: "Explorer";
+                                width: Square_size * 0.25;
+                                height: Square_size * 0.25;
+                                
+                                clicked => {
+                                    root.cmd_send("2");
+                                }
+                            }
+                            Button {//Ptr Scボタン
+                                text: "Ptr Sc";
+                                width: Square_size * 0.25;
+                                height: Square_size * 0.25;
+                    
+                    
+                                clicked => {
+                                    root.cmd_send("3");
+                                }
+                            }
+                        }
+                        Row{
+                            Button {//Ctrl+Sボタン
+                                text: "Ctrl+S";
+                                width: Square_size * 0.25;
+                                height: Square_size * 0.25;
+                                
+                                clicked => {
+                                    root.cmd_send("4");
+                                }
+                            }
+                            Button {//Ctrl+Pボタン
+                                text: "Ctrl+P";
+                                width: Square_size * 0.25;
+                                height: Square_size * 0.25;
+                                
+                                clicked => {
+                                    root.cmd_send("5");
+                                }
+                            }
+                            Button {//Win+iボタン
+                                text: "win+i";
+                                width: Square_size * 0.25;
+                                height: Square_size * 0.25;
+                                
+                                clicked => {
+                                    root.cmd_send("6");
+                                }
+                            }
+                        }
+                        Row{
+                            Button {//Copyボタン
+                                text: "Copy";
+                                width: Square_size * 0.25;
+                                height: Square_size * 0.25;
+                                
+                                clicked => {
+                                    root.cmd_send("7");            
+                                }
+                            }
+                            Button {//Pasteボタン
+                                text: "Paste";
+                                width: Square_size * 0.25;
+                                height: Square_size * 0.25;
+                                
+                                clicked => {
+                                    root.cmd_send("8");
+                                }
+                            }
+                            Button {//Ctrl+Aボタン
+                                text: "Ctrl+A";
+                                width: Square_size * 0.25;
+                                height: Square_size * 0.25;
+                                
+                                clicked => {
+                                    root.cmd_send("9");
+                                }
+                            }
+                        }
+                        Row{
+                            HorizontalBox {//音量調整
+                                colspan: 3;
+                                alignment:center;
+                                Button {//muteボタン
+                                    text: "mute";
+                                    width: Square_size * 0.25;
+
+                                    clicked => {
+                                        root.cmd_send("10");
+                                    }
+
+                                }
+                                Button{//＋ボタン
+                                    text:"＋";
+
+                                    clicked => {
+                                        if (volume + delta_volume)<=max_volume{
+                                            volume += delta_volume;
+                                        }else{
+                                            volume=max_volume;
+                                        }
+                                    }
+                                }
+                                Text{//Volumeテキスト
+                                    horizontal-alignment: center;
+                                    width:40px;
+
+                                    font-size:32px;
+                                    text:volume;
+                                }
+                                Button {//ーボタン
+                                    text:"ー";
+
+                                    clicked => {
+                                        if 0 <= (volume - delta_volume){
+                                            volume -= delta_volume;
+                                        }else{
+                                            volume=0;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    // 2列目
-                    Button {
-                        row: 0; col: 1;
-                        text: "Explorer";
-                            
-                        clicked => {root.cmd_send("win+e");}
-                    }
-                    Button {
-                        row: 1; col: 1;
-                        text: "Ctrl+P";
-                            
-                        clicked => {root.cmd_send("Ctrl+p");}
-                    }
-                    Button {
-                        row: 2; col: 1;
-                        text: "Paste";
-                            
-                        clicked => {root.cmd_send("Ctrl+v");}
-                    }
-
-                    // 3列目
-                    Button {
-                        row: 0; col: 2;
-                        text: "Prt Sc";
-                            
-                        clicked => {root.cmd_send("Prtsc");}
-                    }
-                    Button {
-                        row: 1; col: 2;
-                        text: "win+i";
-                            
-                        clicked => {root.cmd_send("win+i");}
-                    }
-                    Button {
-                        row: 2; col: 2;
-                        text: "Ctrl+A";
-                            
-                        clicked => {root.cmd_send("Ctrl+a");}
-                    }
-                    HorizontalBox {
-                        alignment: center;
-                        row: 3; col: 0; 
-                        Button {
-                        text: "mute";
-                        clicked => {
-                            root.cmd_send("mute");
-                        }
-
-                        }
-                        Slider {
-                        height: 20px;
-                        }
-                    }
-                }
-            }
+                }//横方向中央揃え
+            }//縦方向中央揃え
         }
-        //更新ボタンが横にあるバージョン        //更新ボタンが横にあるバージョン
+        
         Tab {
             HorizontalBox {
                  VerticalBox{
@@ -156,14 +205,17 @@ export component AppWindow inherits Window {
                         LineEdit{
                             width:75%;
                             accessible-placeholder-text: "IPアドレスを入力";
-                            text <=> root.search_IP_address;
-                            
+
+                            edited(text) =>{
+                                root.search_IP_address=text;
+                            }
                         }
                         Button{
-                            text:"接続";
+                            text:"検索";
 
                             clicked =>{
-                                root.server_connecting({ device_name: "Custom", IP_address: root.search_IP_address});
+                                //処理
+                                debug("clicked:"+root.search_IP_address);
                             }
                         }
                     }
@@ -189,56 +241,6 @@ export component AppWindow inherits Window {
                 }
             }
         }
-        //更新ボタンが下にあるバージョン
-        /*
-        Tab {
-            VerticalBox {
-                HorizontalBox {
-                    alignment:center;
-                    preferred-height: 50px;
-                    preferred-width: 100%;
-                    LineEdit{
-                        width:80%;
-                        accessible-placeholder-text: "IPアドレスを入力";
-
-                        edited(text) =>{
-                            root.search_IP_address=text;
-                        }
-                    }
-                    Button{
-                        text:"検索";
-                        
-                        clicked =>{
-                            //処理
-                            debug("clicked:"+root.search_IP_address);
-                        }
-                    }
-                }
-                ListView {
-                     for data in devices: Rectangle {
-                        preferred-height: 50px;
-                        preferred-width: 100%;
-                        Button {
-                            width: 100%;
-                            text: data.device_name + "                " + data.IP_address;
-                            clicked => {
-                                root.server_connecting(data);
-                            }
-                        }
-                    }
-                }
-            }
-            VerticalBox {
-                alignment:end;
-                Button {
-                    text: "更新";
-                    clicked => {
-                        root.list_update();
-                    }
-                }
-            }
-        }
-        */
     }   
 }
 /*
