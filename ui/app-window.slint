@@ -35,10 +35,6 @@ export component AppWindow inherits Window {
     callback server_connecting(Device);
     callback cmd_send(string);
 
-    property <int> max_volume:100;
-    property <int> delta_volume:5;
-    in-out property <int> volume;
-
     in-out property <string> search_IP_address:"";
     in-out property <length> Square_size : min(root.width,root.height);
     
@@ -65,7 +61,7 @@ export component AppWindow inherits Window {
                                 height: Square_size * 0.25;
                     
                                     clicked => {
-                                        root.cmd_send("1");
+                                        root.cmd_send("ctrl+Shift+Esc");
                                     }
                             }
                             Button {//Explorerボタン
@@ -74,7 +70,7 @@ export component AppWindow inherits Window {
                                 height: Square_size * 0.25;
                                 
                                 clicked => {
-                                    root.cmd_send("2");
+                                    root.cmd_send("win+e");
                                 }
                             }
                             Button {//Ptr Scボタン
@@ -84,7 +80,7 @@ export component AppWindow inherits Window {
                     
                     
                                 clicked => {
-                                    root.cmd_send("3");
+                                    root.cmd_send("Prtsc");
                                 }
                             }
                         }
@@ -95,7 +91,7 @@ export component AppWindow inherits Window {
                                 height: Square_size * 0.25;
                                 
                                 clicked => {
-                                    root.cmd_send("4");
+                                    root.cmd_send("Ctrl+s");
                                 }
                             }
                             Button {//Ctrl+Pボタン
@@ -104,7 +100,7 @@ export component AppWindow inherits Window {
                                 height: Square_size * 0.25;
                                 
                                 clicked => {
-                                    root.cmd_send("5");
+                                    root.cmd_send("Ctrl+p");
                                 }
                             }
                             Button {//Win+iボタン
@@ -113,7 +109,7 @@ export component AppWindow inherits Window {
                                 height: Square_size * 0.25;
                                 
                                 clicked => {
-                                    root.cmd_send("6");
+                                    root.cmd_send("win+i");
                                 }
                             }
                         }
@@ -124,7 +120,7 @@ export component AppWindow inherits Window {
                                 height: Square_size * 0.25;
                                 
                                 clicked => {
-                                    root.cmd_send("7");            
+                                    root.cmd_send("Ctrl+c");            
                                 }
                             }
                             Button {//Pasteボタン
@@ -133,7 +129,7 @@ export component AppWindow inherits Window {
                                 height: Square_size * 0.25;
                                 
                                 clicked => {
-                                    root.cmd_send("8");
+                                    root.cmd_send("Ctrl+v");
                                 }
                             }
                             Button {//Ctrl+Aボタン
@@ -142,51 +138,34 @@ export component AppWindow inherits Window {
                                 height: Square_size * 0.25;
                                 
                                 clicked => {
-                                    root.cmd_send("9");
+                                    root.cmd_send("Ctrl+a");
                                 }
                             }
                         }
                         Row{
-                            HorizontalBox {//音量調整
-                                colspan: 3;
-                                alignment:center;
-                                Button {//muteボタン
-                                    text: "mute";
-                                    width: Square_size * 0.25;
+                            Button {//muteボタン
+                                text: "mute";
+                                height:Square_size*0.12;
 
-                                    clicked => {
-                                        root.cmd_send("10");
-                                    }
-
+                                clicked => {
+                                    root.cmd_send("mute");
                                 }
-                                Button{//＋ボタン
-                                    text:"＋";
 
-                                    clicked => {
-                                        if (volume + delta_volume)<=max_volume{
-                                            volume += delta_volume;
-                                        }else{
-                                            volume=max_volume;
-                                        }
-                                    }
+                            }
+                            Button{//＋ボタン
+                                text:"＋";
+                                height:Square_size*0.12;
+
+                                clicked => {
+                                    root.cmd_send("volUp");
                                 }
-                                Text{//Volumeテキスト
-                                    horizontal-alignment: center;
-                                    width:40px;
+                            }
+                            Button {//ーボタン
+                                text:"ー";
+                                height:Square_size*0.12;
 
-                                    font-size:32px;
-                                    text:volume;
-                                }
-                                Button {//ーボタン
-                                    text:"ー";
-
-                                    clicked => {
-                                        if 0 <= (volume - delta_volume){
-                                            volume -= delta_volume;
-                                        }else{
-                                            volume=0;
-                                        }
-                                    }
+                                clicked => {
+                                    root.cmd_send("volDown");
                                 }
                             }
                         }
@@ -199,6 +178,7 @@ export component AppWindow inherits Window {
         Tab {
             HorizontalBox {
                  VerticalBox{
+                    width:30%;
                     HorizontalBox {
                         preferred-height: 50px;
                         preferred-width: 100%;
