@@ -1,0 +1,19 @@
+[package]
+name = "https_file_upload"
+version = "0.1.0"
+edition = "2021"
+
+
+[[bin]]
+name = "https_file_upload"
+path = "main.rs"
+
+[dependencies]
+# HTTPクライアント（TLS + マルチパート対応 + 非同期）
+reqwest = { version = "0.12.22", features = ["multipart", "rustls-tls"] }
+
+# 非同期ランタイム
+tokio = { version = "1.46.1", features = ["full"] }
+
+# エラー処理を簡単に（任意だが推奨）
+anyhow = "1.0.98"
