@@ -13,15 +13,32 @@ async fn main() -> Result<()> {
         .part("file", file_part);
 
     let client = Client::builder()
-        .danger_accept_invalid_certs(true)  // ← ここで検証スキップ
+        .danger_accept_invalid_certs(true)
+        .danger_accept_invalid_hostnames(true)
+        .use_rustls_tls()
+        .timeout(std::time::Duration::from_secs(30))
         .build()?;
 
-    let res = client
-        .post("https://10.28.224.80:8080/upload")
+    match client
+        .post("https://localhost:8080/upload")
         .multipart(form)
         .send()
-        .await?;
+        .await
+    {
+        Ok(res) => {
+            println!("Status: {}", res.status());
+            let body = res.text().await?;
+            println!("Response: {}", body);
+        }
+        Err(e) => {
+            eprintln!("Request failed: {}", e);
+            if e.is_connect() {
+                eprintln!("Connection error - check if HTTPS server is running");
+            } else if e.is_request() {
+                eprintln!("Request error - check URL and server configuration");
+            }
+        }
+    }
 
-    println!("Status: {}", res.status());
     Ok(())
 }
