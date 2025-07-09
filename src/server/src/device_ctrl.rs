@@ -31,6 +31,10 @@ fn string_to_key(input: &str) -> Option<Key> {
         "space" => Some(Key::Space),
         "prtsc" | "printscreen" => Some(Key::PrintScr),
         "mute" => Some(Key::VolumeMute),
+        "volup" | "volumeup" => Some(Key::VolumeUp),
+        "voldown" | "volumedown" => Some(Key::VolumeDown),
+        
+        
         _ => {
             // 1文字だけなら Unicode
             let mut chars = input.chars();
