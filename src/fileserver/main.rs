@@ -20,7 +20,7 @@ async fn main() -> Result<()> {
         .build()?;
 
     match client
-        .post("https://localhost:8080/upload")
+        .post("https://10.28.224.80:8080/upload")
         .multipart(form)
         .send()
         .await

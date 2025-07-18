@@ -13,9 +13,11 @@ slint::include_modules!();
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-
+    
     let ui = AppWindow::new().unwrap();
     let ui_weak = ui.as_weak();
+    ui.set_platform(std::env::consts::OS.into());
+
 
     
     ui.on_list_update(move || {

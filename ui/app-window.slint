@@ -25,12 +25,27 @@ export component AppWindow inherits Window {
 
     in-out property <string> search_IP_address:"";
     in-out property <length> Square_size : min(root.width,root.height);
-    
+    in-out property <string> platform;
     in-out property <[Device]> devices;
     preferred-width: 100%;
     preferred-height: 100%;
     min-height: 600px;
     min-width: 300px;
+
+    Rectangle {
+        // 背景いっぱいに広げる
+        width: parent.width;
+        height: parent.height;
+        color: #f0f0f0; // 好きな背景色に変更
+
+        Text {
+            text: root.platform;
+            x: parent.width / 2 - self.width / 2;
+            y: parent.height / 2 - self.height / 2;
+            font-size: 30px;
+            color: #cccccc; // 半透明っぽく見えるグレー
+        }
+    }
     TabWidget {
 
         Tab{
