@@ -1,5 +1,6 @@
 import { Device } from "device_search.slint";
-import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget, LineEdit, SpinBox} from "std-widgets.slint";
+import { File,FILE_TYPES } from "File.slint";
+import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget, LineEdit, SpinBox, GridBox} from "std-widgets.slint";
 
 export global App_Data {
     in-out property <[Device]> devices:
@@ -14,15 +15,59 @@ export global App_Data {
 
 /*
 <やること>
-・ボタンの比率を格納するプロパティ？
-・
+ストレージUIの実装
+・検索バー実装
+・パスを取得⇢UI
+・パスを一覧を格納する配列？
+・現在のパスを取得⇢そのパスに所属しているファイルを検索⇢表示
+・現在のパスにおけるファイル一覧を格納する配列？を作成
+・データを決める「ファイル名,フォルダかどうか,パス,容量,(アップロード日時)」
+・更新ボタン
+
+流れ
+・更新ボタンor起動時にFileListを取得
+・現在のPathを取得
+・現在のPathに所属しているファイルを検索
+・所属しているファイルをlistに追加
+・そのlistを表示
+
+UI
+・ServerListと構造は似ている？
+・上記の検索バーに現在のPath入れたらそれっぽい
+
+・アップロードとダウンロード追加？
+
+
+
 */
 
 export component AppWindow inherits Window {
     callback list_update();
     callback server_connecting(Device);
     callback cmd_send(string);
+    
+    //すべてのファイルを格納
+    in-out property <[File]> all_files:[
+        {file_name:"desktop",file_path:"PC:\\user",file_size:65536,file_type:FILE-TYPES.folder},
+        {file_name:"document",file_path:"PC:\\user",file_size:16,file_type:FILE-TYPES.folder},
+        {file_name:"picture",file_path:"PC:\\user",file_size:32,file_type:FILE-TYPES.folder},
+        {file_name:"download",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.folder},
+        {file_name:"readme.txt",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.file},
+        {file_name:"ToDoList.txt",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.file},
+    ];
 
+    // 現在のファイルパスのファイル一覧を格納
+    in-out property <[File]> current_path_files:[
+        {file_name:"desktop",file_path:"PC:\\user",file_size:65536,file_type:FILE-TYPES.folder},
+        {file_name:"document",file_path:"PC:\\user",file_size:16,file_type:FILE-TYPES.folder},
+        {file_name:"picture",file_path:"PC:\\user",file_size:32,file_type:FILE-TYPES.folder},
+        {file_name:"download",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.folder},
+        {file_name:"readme.txt",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.file},
+        {file_name:"ToDoList.txt",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.file},
+    ];
+
+    in-out property <length> file_font_size:15px;
+    in-out property <string> search_filepath:"";
     in-out property <string> search_IP_address:"";
     in-out property <length> Square_size : min(root.width,root.height);
     in-out property <string> platform;
@@ -36,7 +81,7 @@ export component AppWindow inherits Window {
         // 背景いっぱいに広げる
         width: parent.width;
         height: parent.height;
-        color: #f0f0f0; // 好きな背景色に変更
+
 
         Text {
             text: root.platform;
@@ -47,8 +92,9 @@ export component AppWindow inherits Window {
         }
     }
     TabWidget {
-
+        //Home
         Tab{
+            title:"Home";
             VerticalBox{//縦方向中央揃え
                 alignment: center;
                 HorizontalBox {//横方向中央揃え
@@ -177,8 +223,9 @@ export component AppWindow inherits Window {
                 }//横方向中央揃え
             }//縦方向中央揃え
         }
-        
+        //server
         Tab {
+            title:"ServerList";
             HorizontalBox {
                  VerticalBox{
                     width:30%;
@@ -224,6 +271,115 @@ export component AppWindow inherits Window {
                 }
             }
         }
+        //Storage
+        Tab {
+            title:"Storage";
+            VerticalBox{
+                HorizontalBox {
+                    alignment: center;
+                    preferred-height: 50px;
+                    preferred-width: 100%;
+                    LineEdit{
+                        width:75%;
+                        accessible-placeholder-text: "Pathを入力";
+
+                        edited(text) =>{
+                            root.search_filepath=text;
+                        }
+                    }
+                    Button{
+                        text:"検索";
+
+                        clicked =>{
+                            //処理
+                            debug("clicked:"+root.search_filepath);
+                        }
+                    }
+                }
+                GridBox {
+                    Text {
+                        horizontal-alignment:left;
+                        vertical-alignment:center;
+                        horizontal-stretch: 1;
+                        font-size:file_font_size*1.1;
+                        color:#777;
+                        text:"[NAME]";
+                        col:0;
+                        width:30%;
+                    }
+                    Text {
+                        horizontal-alignment:left;
+                        vertical-alignment:center;
+                        horizontal-stretch: 1;
+                        font-size:file_font_size*1.1;
+                        color:#777;
+                        text:"[SIZE]";
+                        col:1;
+                        width:30%;
+                    }
+                    Text {
+                        horizontal-alignment:left;
+                        vertical-alignment:center;
+                        horizontal-stretch: 1;
+                        font-size:file_font_size*1.1;
+                        color:#777;
+                        text:"[TYPE]";
+                        col:2;
+                        width:30%;
+                    }
+                }
+                ListView {
+                    for data in all_files: Rectangle {
+                        preferred-height: 30px;
+                        background:area.pressed ? #64afff6e : area.has-hover ?  #96dcff70:#ffffff00;
+                        GridBox {
+                            Text {
+                                horizontal-alignment:left;
+                                vertical-alignment:center;
+                                horizontal-stretch: 1;
+                                font-size:file_font_size;
+                                text:data.file_name;
+                                col:0;
+                                width: 30%;
+                            }
+                            Text {
+                                horizontal-alignment:left;
+                                vertical-alignment:center;
+                                horizontal-stretch: 1;
+                                font-size:file_font_size;
+                                text:data.file_size;
+                                col:1;
+                                width: 30%;
+                            }
+                            Text {
+                                horizontal-alignment:left;
+                                vertical-alignment:center;
+                                horizontal-stretch: 1;
+                                font-size:file_font_size;
+                                text:data.file-type==FILE-TYPES.file ? "file" : "folder";
+                                col:2;
+                                width: 30%;
+                            }
+                        }
+                        area:=TouchArea{
+                            width: 100%;
+                            mouse-cursor:pointer;
+                            clicked => {
+                                debug("clicked:"+data.file-name);
+                            }
+                        }
+                    }
+                }
+                Button {
+                    text: "更新";
+                    width:100%;
+                    clicked => {
+                        //ファイルを更新
+                    }
+                }
+            }
+        }
+
     }   
 }
 /*
