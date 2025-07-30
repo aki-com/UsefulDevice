@@ -5,7 +5,7 @@ mod slint_fanc;
 
 use std::error::Error;
 
-use ud_client::{change_server, get_server,send_command};
+use ud_client::Client;
 use slint_fanc::{cmd_send, list_update, server_connecting};
 
 slint::include_modules!();
