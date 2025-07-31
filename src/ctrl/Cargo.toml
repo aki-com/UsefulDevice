@@ -1,0 +1,12 @@
+[package]
+name = "ud_ctrl"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "ud_ctrl"
+path = "lib.rs"
+
+[dependencies]
+tokio = { version = "1.46.0", features = ["full"] }
+enigo = "0.2.1"

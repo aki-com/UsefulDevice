@@ -1,7 +1,8 @@
 #![cfg(any(target_os = "android", target_os = "ios"))]
 
 mod slint_fanc;
-
+pub mod link;  // 通信レイヤー
+pub mod ctrl;  // アプリケーションレイヤー
 
 use std::error::Error;
 
