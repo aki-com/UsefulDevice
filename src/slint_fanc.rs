@@ -72,7 +72,7 @@ pub fn cmd_send(input: SharedString, state: &AppState) {
     let client_ref = state.client.clone();
     tokio::spawn(async move {
         if let Some(ref mut client) = *client_ref.lock().await {
-            let _ = client.send_command(&input).await;
+            let _: Result<String, String> = client.send_command(&input).await;
         } else {
             println!("Not connected to server");
         }
