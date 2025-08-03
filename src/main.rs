@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let ui_weak = ui.as_weak();
     ui.set_platform(std::env::consts::OS.into());
 
-
+    
     
     ui.on_list_update(move || {
         let ui_weak = ui_weak.clone();
