@@ -98,8 +98,13 @@ pub async fn start_server() {
         }
     
         let stream_clone = Arc::clone(&stream);
-    
+        let status_stream = Arc::clone(&stream);
+
         tokio::spawn(async move {
+            // サーバーから定期的にクライアントへ送信
+            tokio::spawn(async move {
+                crate::send_status::periodic_status_sender(status_stream).await;
+            });
             let _ = handle_client(stream_clone.lock().await).await;
     
             // クライアント切断時に current_connection をクリア

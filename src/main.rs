@@ -1,7 +1,7 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod slint_fanc;
-use slint_fanc::{cmd_send, list_update, server_connecting};
+use slint_fanc::{cmd_send, list_update, server_connecting, AppState};
 
 use std::error::Error;
 
@@ -20,16 +20,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     
     
+    let app_state = AppState::new();
+
     ui.on_list_update(move || {
         let ui_weak = ui_weak.clone();
         list_update(ui_weak);
     }); 
 
-    ui.on_server_connecting(|index| {
-        server_connecting(index);
+    ui.on_server_connecting({
+        let state = app_state.clone();
+        move |index| {
+            server_connecting(index, &state);
+        }
     });
-    ui.on_cmd_send(|input| {
-        cmd_send(input);
+    
+    ui.on_cmd_send({
+        let state = app_state.clone();
+        move |input| {
+            cmd_send(input, &state);
+        }
     });
 
     ui.run()?;

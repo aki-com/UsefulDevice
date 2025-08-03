@@ -1,13 +1,26 @@
 use slint::{ModelRc, SharedString, Weak};
 use std::net::IpAddr;
-
-
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 use crate::{AppWindow, Device};
-use ud_client::{change_server, get_server,send_command};
+use ud_client::Client;
+
+#[derive(Clone)]
+pub struct AppState {
+    pub client: Arc<Mutex<Option<Client>>>,
+}
+
+impl AppState {
+    pub fn new() -> Self {
+        Self {
+            client: Arc::new(Mutex::new(None)),
+        }
+    }
+}
 
 async fn get_device() -> Vec<Device> {
-    let raw = get_server().await;
+    let raw = Client::get_servers().await;
 
     raw.into_iter().map(|(_, (name, ip, _))| Device {
         device_name: name.into(),
@@ -30,10 +43,9 @@ pub fn list_update(ui_weak: Weak<AppWindow>) {
 
 }
     
-pub fn server_connecting(index: Device) {
+pub fn server_connecting(index: Device, state: &AppState) {
     let Device { device_name, IP_address } = index;
     let name = device_name.to_string();
-    //let ip: IpAddr = IP_address.to_string().parse().unwrap();のunwrap();なし
     let ip: IpAddr = match IP_address.to_string().parse() {
         Ok(ip) => ip,
         Err(_) => {
@@ -44,19 +56,26 @@ pub fn server_connecting(index: Device) {
     let port = 5000;
 
     println!("Connecting to server: {} {} {}", name, ip, port);
-    // We can use regular spawn here as this doesn't capture UI
+    let client_ref = state.client.clone();
     tokio::spawn(async move {
-        change_server((name, ip, port)).await;
+        if let Ok(client) = Client::connect((name, ip, port)).await {
+            *client_ref.lock().await = Some(client);
+        }
     });
 }
 
 
-pub fn cmd_send(input: SharedString) {
+pub fn cmd_send(input: SharedString, state: &AppState) {
     let input = input.to_string();
     println!("Sending command: {}", input);
-    // We can use regular spawn here as this doesn't capture UI
+    
+    let client_ref = state.client.clone();
     tokio::spawn(async move {
-        send_command(input).await;
+        if let Some(ref mut client) = *client_ref.lock().await {
+            let _: Result<String, String> = client.send_command(&input).await;
+        } else {
+            println!("Not connected to server");
+        }
     });
 }
 

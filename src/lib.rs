@@ -5,8 +5,8 @@ mod slint_fanc;
 
 use std::error::Error;
 
-use ud_client::{change_server, get_server,send_command};
-use slint_fanc::{cmd_send, list_update, server_connecting};
+use ud_client::Client;
+use slint_fanc::{cmd_send, list_update, server_connecting, AppState};
 
 slint::include_modules!();
 
@@ -19,17 +19,21 @@ async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std
     slint::android::init(app).unwrap();
     let ui = AppWindow::new()?;
     let ui_weak = ui.as_weak();
+    let app_state = AppState::new();
 
     ui.on_list_update(move || {
         let ui_weak = ui_weak.clone();
         list_update(ui_weak);
     });
 
-    ui.on_server_connecting(|index| {
-        server_connecting(index);
+    let state_clone = app_state.clone();
+    ui.on_server_connecting(move |index| {
+        server_connecting(index, &state_clone);
     });
-    ui.on_cmd_send(|input| {
-        cmd_send(input);
+    
+    let state_clone = app_state.clone();
+    ui.on_cmd_send(move |input| {
+        cmd_send(input, &state_clone);
     });
 
     ui.run()?;
@@ -43,7 +47,8 @@ async fn android_main(app: slint::android::AndroidApp) -> Result<(), Box<dyn std
 async fn ios_main() -> Result<(), Box<dyn std::error::Error>> {
     let ui = AppWindow::new()?;
     let ui_weak = ui.as_weak();
-        // 初期デバイスセット
+    let app_state = AppState::new();
+    // 初期デバイスセット
 
     // リスト更新ハンドラ
     ui.on_list_update(move || {
@@ -51,11 +56,14 @@ async fn ios_main() -> Result<(), Box<dyn std::error::Error>> {
         list_update(ui_weak);
     });
 
-    ui.on_server_connecting(|index| {
-        server_connecting(index);
+    let state_clone = app_state.clone();
+    ui.on_server_connecting(move |index| {
+        server_connecting(index, &state_clone);
     });
-    ui.on_cmd_send(|input| {
-        cmd_send(input);
+    
+    let state_clone = app_state.clone();
+    ui.on_cmd_send(move |input| {
+        cmd_send(input, &state_clone);
     });
 
     ui.run()?;
