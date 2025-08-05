@@ -1,13 +1,17 @@
-// モジュール定義
-pub mod commands;
-pub mod keyboard;
-pub mod status;
-pub mod connection_manager;
-pub mod client_session;
+use tokio::net::TcpStream;
 
-// 関数のre-export
-pub use commands::send_command;
-pub use keyboard::send_key_combination;
-pub use status::{send_to_client, periodic_status_sender, notify_key_result};
-pub use connection_manager::{ConnectionManager, SharedConnection};
-pub use client_session::ClientSession;
+// 内部モジュール（非公開）
+mod commands;
+mod keyboard;
+
+// 公開API
+
+/// コマンドを送信
+pub async fn send_command(stream: &mut TcpStream, input: &str) -> Result<String, String> {
+    commands::send_command(stream, input).await
+}
+
+/// キーの組み合わせを送信
+pub fn send_key_combination(keys: &[&str]) -> Result<(), String> {
+    keyboard::send_key_combination(keys)
+}

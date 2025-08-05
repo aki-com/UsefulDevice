@@ -3,14 +3,14 @@ name = "ud_server"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
+[[bin]]
 name = "ud_server"
-path = "src/lib.rs"
+path = "src/main.rs"
 
 [dependencies]
 ud_link = { path = "../link" }
 ud_ctrl = { path = "../ctrl" }
-tokio = { version = "1.45.1", features = ["full"] }
+tokio = { version = "1.47.1", features = ["full"] }
 
 
 
