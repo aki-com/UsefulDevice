@@ -5,13 +5,10 @@
 mod tcp;
 mod mdns;
 
-pub use tcp::{TcpConnection, TcpServer, TcpError};
-pub use mdns::{Mdns, Device};
-use std::collections::HashMap;
-use std::net::IpAddr;
 
-// 後方互換性のため
-pub use tcp::TcpConnection as TcpConnectionClass;
+pub use tcp::{TcpConnection, TcpServer, TcpError};
+use mdns::{Mdns, Device};
+
 
 /// TCPサーバーを起動して、指定されたポートでリッスン
 pub async fn server_start(port: u16) -> Result<TcpServer, TcpError> {
