@@ -32,5 +32,7 @@ pub async fn discover_devices(timeout_secs: f32) -> Result<Vec<Device>, String> 
 /// mDNSサービス登録
 pub async fn register_mdns_service(port: u16) -> Result<(), String> {
     let manager = Mdns::new()?;
-    manager.register(port).await
+    let _event_loop = manager.register(port).await
+        .map_err(|e| e.to_string())?;
+    Ok(())
 }

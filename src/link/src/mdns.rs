@@ -1,10 +1,11 @@
 // mDNSサービス管理（最適化版）
+use zeroconf_tokio::MdnsServiceAsync;
 use zeroconf_tokio::{MdnsService, ServiceType};
 use zeroconf_tokio::prelude::*;
+use zeroconf_tokio::bonjour::event_loop::BonjourEventLoop;
 use mdns_sd::{ServiceDaemon, ServiceEvent};
 use std::net::{IpAddr, SocketAddr};
 use std::time::{Duration, Instant};
-use std::collections::HashMap;
 use tokio::time::timeout;
 
 pub type Result<T> = std::result::Result<T, String>;
@@ -32,7 +33,7 @@ impl Device {
 
 impl Mdns {
     pub fn new() -> Result<Self> {
-        let service_type = ServiceType::new("useful_devices", "tcp")
+        let service_type = ServiceType::new("useful_devices", "udp")
             .map_err(|e| e.to_string())?;
         Ok(Self { service_type })
     }
@@ -43,13 +44,13 @@ impl Mdns {
     }
 
     /// サービスを登録
-    pub async fn register(&self, port: u16) -> Result<()> {
+    pub async fn register(&self, port: u16) -> zeroconf_tokio::Result<BonjourEventLoop> {
         let mut service = MdnsService::new(self.service_type.clone(), port);
-        service.register()
-            .map_err(|e| e.to_string())?;
-        
-        println!("mDNS service registered on port {}", port);
-        Ok(())
+        let event_loop = service.register()?;
+        let mut service = MdnsServiceAsync::new(service)?;
+        let result = service.start().await?;
+        println!("Service registration started: {:?}", result);
+        Ok(event_loop)
     }
 
     /// デバイスを発見（mdns-sdベース）
@@ -58,7 +59,7 @@ impl Mdns {
             .map_err(|e| format!("Failed to create mdns daemon: {}", e))?;
         
         let receiver = mdns
-            .browse("_useful_devices._tcp.local.")
+            .browse("_useful_devices._udp.local.")
             .map_err(|e| format!("Failed to browse for mDNS services: {}", e))?;
 
         let mut devices = Vec::new();
@@ -96,6 +97,7 @@ impl Mdns {
         println!("Discovery completed. Found {} devices", devices.len());
         Ok(devices)
     }
+
 }
 
 impl Default for Mdns {
