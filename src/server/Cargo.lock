@@ -970,6 +970,7 @@ version = "0.1.0"
 dependencies = [
  "local-ip-address",
  "mdns-sd",
+ "thiserror",
  "tokio",
  "zeroconf-tokio",
 ]

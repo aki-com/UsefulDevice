@@ -1,4 +1,4 @@
-use ud_link::{start_tcp_server, accept_connection, receive_data};
+use ud_link::{server_start, connection_accept, TcpConnection, register_mdns_service};
 use ud_ctrl::send_key_combination;
 
 #[tokio::main]
@@ -6,16 +6,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Starting server...");
     
     // サーバー起動
-    let (_ip, listener) = start_tcp_server().await?;
+    let server = server_start(5000).await?;
+    
+    // mDNSサービス登録
+    match register_mdns_service(5000).await {
+        Ok(_) => println!("mDNS service registered successfully"),
+        Err(e) => eprintln!("Failed to register mDNS service: {}", e),
+    }
     
     // 無限ループで接続待機
     loop {
         // 接続受け入れ
-        let mut connection = accept_connection(&listener).await?;
+        let mut connection = connection_accept(&server).await?;
         
         // データ受信とコマンド処理のループ
         loop {
-            match receive_data(&mut connection).await {
+            match connection.receive_line().await {
                 Ok(data) => {
                     println!("Received command: {}", data);
                     let parts: Vec<&str> = data.split('+').collect();
