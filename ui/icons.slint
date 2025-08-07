@@ -1,0 +1,87 @@
+export component FileIcon inherits  Rectangle{
+    width: 20px;
+    height: 20px;
+    Path{
+        fill: #ffffff;
+
+        commands: "M0 0 H40 L64 24 V96 H0 V0 0 Z"; 
+        /*
+         * M0 0 H40 L64 24 V96 H0 V0 0 Z
+         */
+    }
+    Path{
+        stroke:#333;
+        stroke-width:0.8px;
+
+        commands: "M0 0 H40 L64 24 V96 H0 V0 0 Z M40 0 V24 H64 L40 0 Z M8 35 H32 Z M8 45 H56 Z M8 55 H48 Z M8 65 H56 Z M8 75 H56 Z"; 
+        /*
+         * M0 0 H40 L64 24 V96 H0 V0 0 Z
+         * M40 0 V24 H64 L40 0 Z
+         * M8 35 H32 Z
+         * M8 45 H56 Z
+         * M8 55 H48 Z
+         * M8 65 H56 Z
+         * M8 75 H56 Z
+         */
+    }
+}
+
+export component DirectoryIcon inherits  Rectangle{
+    width: 20px;
+    height: 20px;
+    Path{
+        fill: #ffe57f;
+
+        commands: "M0 0 H24 L36 12 H0 V0 Z M0 12 H64 V56 H0 V12 Z"; 
+        /*
+         * M0 0 H24 L36 12 H0 V0 Z
+         * M0 12 H64 V56 H0 V12 Z
+         */
+    }
+    Path{
+        stroke:#333;
+        stroke-width:0.8px;
+
+        commands: "M0 0 H24 L36 12 H0 V0 Z M0 12 H64 V56 H0 V12 Z"; 
+        /*
+         * M0 0 H24 L36 12 H0 V0 Z
+         * M0 12 H64 V56 H0 V12 Z
+         */
+    }
+}
+
+
+//暇で製作途中
+export component PictureIcon inherits  Rectangle{
+    width: 200px;
+    height: 200px;
+
+
+    Path{//大枠
+        fill:#fff;
+        commands:"";
+    }
+
+    Path{//太陽
+        fill:#fff;
+        commands:"";
+    }
+
+    Path{//山
+        fill:#fff;
+        commands:"";
+    }
+
+
+
+    Path{//外側
+        stroke:#333;
+        stroke-width:0.8px;
+
+        commands: "M0 0 H24 L36 12 H0 V0 Z M0 12 H64 V56 H0 V12 Z"; 
+        /*
+         * M0 0 H24 L36 12 H0 V0 Z
+         * M0 12 H64 V56 H0 V12 Z
+         */
+    }
+}

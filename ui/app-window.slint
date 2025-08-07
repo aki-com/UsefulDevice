@@ -1,6 +1,7 @@
 import { Device } from "device_search.slint";
-import { File,FILE_TYPES } from "File.slint";
-import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget, LineEdit, SpinBox, GridBox} from "std-widgets.slint";
+import { File,FILE_TYPES } from "file.slint";
+import { FileIcon, DirectoryIcon } from "icons.slint";
+import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget, LineEdit, SpinBox, GridBox, ScrollView} from "std-widgets.slint";
 
 export global App_Data {
     in-out property <[Device]> devices:
@@ -11,6 +12,28 @@ export global App_Data {
             { device_name: "Device4", IP_address: "e"},
             { device_name: "Device5", IP_address: "e"},
             ];
+}
+
+export global File_Data{
+    // すべてのファイルを格納
+    in-out property <[File]> all_files:[
+    {file_name:"desktop",file_path:"PC:\\user",file_size:65536,file_type:FILE-TYPES.directory},
+    {file_name:"document",file_path:"PC:\\user",file_size:16,file_type:FILE-TYPES.directory},
+    {file_name:"picture",file_path:"PC:\\user",file_size:32,file_type:FILE-TYPES.directory},
+    {file_name:"download",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.directory},
+    {file_name:"readme.txt",file_path:"PC:\\user",file_size:256,file_type:FILE-TYPES.file},
+    {file_name:"ToDoList.txt",file_path:"PC:\\user",file_size:512,file_type:FILE-TYPES.file},
+    ];
+
+    // カレントディレクトリのファイルを格納
+    in-out property <[File]> current_directory_files:[
+    {file_name:"desktop",file_path:"PC:\\user",file_size:65536,file_type:FILE-TYPES.directory},
+    {file_name:"document",file_path:"PC:\\user",file_size:16,file_type:FILE-TYPES.directory},
+    {file_name:"picture",file_path:"PC:\\user",file_size:32,file_type:FILE-TYPES.directory},
+    {file_name:"download",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.directory},
+    {file_name:"readme.txt",file_path:"PC:\\user",file_size:256,file_type:FILE-TYPES.file},
+    {file_name:"ToDoList.txt",file_path:"PC:\\user",file_size:512,file_type:FILE-TYPES.file},
+    ];
 }
 
 /*
@@ -53,6 +76,10 @@ Storageの現在のclickなどのcallback(Rustで記述？)
 　→すべてのファイルを探索、カレントディレクトリパスと同じパスのファイルを格納
 ・すべてのファイルを格納している配列を更新させる関数
 
+・すべてのファイルを格納する配列いらないかも？
+　→大元のファイルリストからカレントディレクトリパスに合致するファイルを抽出し、
+　 カレントディレクトリファイルを格納している配列に格納する？
+
 */
 
 export component AppWindow inherits Window {
@@ -60,29 +87,11 @@ export component AppWindow inherits Window {
     callback server_connecting(Device);
     callback cmd_send(string);
 
-    // すべてのファイルを格納
-    in-out property <[File]> all_files:[
-        {file_name:"desktop",file_path:"PC:\\user",file_size:65536,file_type:FILE-TYPES.folder},
-        {file_name:"document",file_path:"PC:\\user",file_size:16,file_type:FILE-TYPES.folder},
-        {file_name:"picture",file_path:"PC:\\user",file_size:32,file_type:FILE-TYPES.folder},
-        {file_name:"download",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.folder},
-        {file_name:"readme.txt",file_path:"PC:\\user",file_size:256,file_type:FILE-TYPES.file},
-        {file_name:"ToDoList.txt",file_path:"PC:\\user",file_size:512,file_type:FILE-TYPES.file},
-    ];
-
-    // カレントディレクトリのファイルを格納
-    in-out property <[File]> current_directory_files:[
-        {file_name:"desktop",file_path:"PC:\\user",file_size:65536,file_type:FILE-TYPES.folder},
-        {file_name:"document",file_path:"PC:\\user",file_size:16,file_type:FILE-TYPES.folder},
-        {file_name:"picture",file_path:"PC:\\user",file_size:32,file_type:FILE-TYPES.folder},
-        {file_name:"download",file_path:"PC:\\user",file_size:1024,file_type:FILE-TYPES.folder},
-        {file_name:"readme.txt",file_path:"PC:\\user",file_size:256,file_type:FILE-TYPES.file},
-        {file_name:"ToDoList.txt",file_path:"PC:\\user",file_size:512,file_type:FILE-TYPES.file},
-    ];
-
     in-out property <length> file_font_size:15px;
+
     in-out property <string> current_directory_path:"PC:\\user";
     in-out property <string> search_IP_address:"";
+
     in-out property <length> Square_size : min(root.width,root.height);
     in-out property <string> platform;
     in-out property <[Device]> devices;
@@ -240,45 +249,45 @@ export component AppWindow inherits Window {
         //server
         Tab {
             title:"ServerList";
-            HorizontalBox {
-                 VerticalBox{
-                    width:30%;
-                    HorizontalBox {
-                        preferred-height: 50px;
-                        preferred-width: 100%;
-                        LineEdit{
-                            width:75%;
-                            accessible-placeholder-text: "IPアドレスを入力";
+            VerticalBox{
+                //検索など
+                HorizontalBox {
+                    alignment: center;
+                    preferred-height: 50px;
+                    preferred-width: 100%;
+                    LineEdit{
+                        width:75%;
+                        accessible-placeholder-text: "IPアドレスを入力";
 
-                            edited(text) =>{
-                                root.search_IP_address=text;
-                            }
-                        }
-                        Button{
-                            text:"検索";
-
-                            clicked =>{
-                                //処理
-                                debug("clicked:"+root.search_IP_address);
-                            }
+                        edited(text) =>{
+                            root.search_IP_address=text;
                         }
                     }
-                    ListView {
-                        for data in devices: Rectangle {
-                            preferred-height: 50px;
-                            preferred-width: 100%;
-                            Button {
-                                width: 100%;
-                                text: data.device_name + "                " + data.IP_address;
-                                clicked => {
-                                    root.server_connecting(data);
-                                }
+                    Button{
+                        text:"検索";
+
+                        clicked =>{
+                            //処理
+                            debug("clicked:"+root.search_IP_address);
+                        }
+                    }
+                }
+                ListView {
+                    for data in devices: Rectangle {
+                        preferred-height: 50px;
+                        preferred-width: 100%;
+                        Button {
+                            width: 100%;
+                            text: data.device_name + "                " + data.IP_address;
+                            clicked => {
+                                root.server_connecting(data);
                             }
                         }
                     }
                 }
                 Button {
                     text: "更新";
+                    width:100%;
                     clicked => {
                         root.list_update();
                     }
@@ -311,71 +320,56 @@ export component AppWindow inherits Window {
                         }
                     }
                 }
-                //"[NAME][SIZE][TYPE]"の表示
+                //"[NAME][SIZE]"の表示
                 GridBox {
                     Text {
                         horizontal-alignment:left;
                         vertical-alignment:center;
-                        horizontal-stretch: 1;
                         font-size:file_font_size*1.1;
                         color:#777;
                         text:"[NAME]";
                         col:0;
-                        width:30%;
+                        width:50%;
                     }
                     Text {
                         horizontal-alignment:left;
                         vertical-alignment:center;
-                        horizontal-stretch: 1;
                         font-size:file_font_size*1.1;
                         color:#777;
-                        text:"[SIZE]";
+                        text:"   [SIZE]";
                         col:1;
-                        width:30%;
-                    }
-                    Text {
-                        horizontal-alignment:left;
-                        vertical-alignment:center;
-                        horizontal-stretch: 1;
-                        font-size:file_font_size*1.1;
-                        color:#777;
-                        text:"[TYPE]";
-                        col:2;
-                        width:30%;
+                        width:50%;
                     }
                 }
                 //ファイル一覧の表示
                 ListView {
-                    for data in current_directory_files: Rectangle {
-                        preferred-height: 30px;
+                    for data in File_Data.current_directory_files: Rectangle {
+                        preferred-height: 35px;
                         background:area.pressed ? #64afff6e : area.has-hover ?  #96dcff70:#ffffff00;
-                        GridBox {
-                            Text {
+                        //GridBox {
+                        HorizontalBox {
+                            if data.file_type == FILE_TYPES.file:
+                                FileIcon{}
+                            if data.file_type == FILE_TYPES.directory:
+                                DirectoryIcon{}
+
+                            Text{
                                 horizontal-alignment:left;
                                 vertical-alignment:center;
-                                horizontal-stretch: 1;
                                 font-size:file_font_size;
                                 text:data.file_name;
-                                col:0;
-                                width: 30%;
+                                wrap: no-wrap;
+                                overflow: elide;
+                                width: 50%;
                             }
                             Text {
                                 horizontal-alignment:left;
                                 vertical-alignment:center;
-                                horizontal-stretch: 1;
                                 font-size:file_font_size;
                                 text:data.file_size;
-                                col:1;
-                                width: 30%;
-                            }
-                            Text {
-                                horizontal-alignment:left;
-                                vertical-alignment:center;
-                                horizontal-stretch: 1;
-                                font-size:file_font_size;
-                                text:data.file-type==FILE-TYPES.file ? "file" : "folder";
-                                col:2;
-                                width: 30%;
+                                wrap: no-wrap;
+                                overflow: elide;
+                                width: 50%;
                             }
                         }
                         area:=TouchArea{
@@ -385,7 +379,7 @@ export component AppWindow inherits Window {
                                 debug("clicked:"+data.file-name);
                                 if data.file_type==FILE-TYPES.file{
                                     //ファイルのダウンロードや削除の操作
-                                }else if data.file_type==FILE-TYPES.folder{
+                                }else if data.file_type==FILE-TYPES.directory{
                                     current_directory_path+="\\"+data.file_name;//(仮)
                                 }
                             }
