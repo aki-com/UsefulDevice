@@ -1,7 +1,11 @@
-// mDNSサービス管理（最適化版）
+// mDNSサービス管理（サーバー・クライアント分離版）
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 use zeroconf_tokio::MdnsServiceAsync;
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 use zeroconf_tokio::{MdnsService, ServiceType};
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 use zeroconf_tokio::prelude::*;
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 use zeroconf_tokio::bonjour::event_loop::BonjourEventLoop;
 use mdns_sd::{ServiceDaemon, ServiceEvent};
 use std::net::{IpAddr, SocketAddr};
@@ -9,11 +13,6 @@ use std::time::{Duration, Instant};
 use tokio::time::timeout;
 
 pub type Result<T> = std::result::Result<T, String>;
-
-/// mDNSサービス管理（最適化版）
-pub struct Mdns {
-    service_type: ServiceType,
-}
 
 /// デバイス情報
 #[derive(Debug, Clone, PartialEq)]
@@ -31,16 +30,18 @@ impl Device {
     }
 }
 
-impl Mdns {
+/// mDNSサーバー（サービス登録用）
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+pub struct MdnsServer {
+    service_type: ServiceType,
+}
+
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+impl MdnsServer {
     pub fn new() -> Result<Self> {
         let service_type = ServiceType::new("useful_devices", "udp")
             .map_err(|e| e.to_string())?;
         Ok(Self { service_type })
-    }
-
-    /// デバイス情報を作成
-    pub fn create_device(&self, name: String, ip: IpAddr, port: u16) -> Device {
-        Device::new(name, ip, port)
     }
 
     /// サービスを登録
@@ -52,8 +53,30 @@ impl Mdns {
         println!("Service registration started: {:?}", result);
         Ok(event_loop)
     }
+}
+
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+impl Default for MdnsServer {
+    fn default() -> Self {
+        Self::new().expect("Failed to create MdnsServer")
+    }
+}
+
+/// mDNSクライアント（デバイス発見用）
+pub struct MdnsClient;
+
+impl MdnsClient {
+    pub fn new() -> Self {
+        Self
+    }
+
+    /// デバイス情報を作成
+    pub fn create_device(&self, name: String, ip: IpAddr, port: u16) -> Device {
+        Device::new(name, ip, port)
+    }
 
     /// デバイスを発見（mdns-sdベース）
+
     pub async fn discover(&self, timeout_secs: f32) -> Result<Vec<Device>> {
         let mdns = ServiceDaemon::new()
             .map_err(|e| format!("Failed to create mdns daemon: {}", e))?;
@@ -97,11 +120,10 @@ impl Mdns {
         println!("Discovery completed. Found {} devices", devices.len());
         Ok(devices)
     }
-
 }
 
-impl Default for Mdns {
+impl Default for MdnsClient {
     fn default() -> Self {
-        Self::new().expect("Failed to create Mdns")
+        Self::new()
     }
 }

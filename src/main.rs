@@ -32,3 +32,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+#[cfg(any(target_os = "android", target_os = "ios"))]
+fn main() -> Result<(), Box<dyn Error>> {
+    // Android and iOS entry points are defined in their respective modules
+    Ok(())
+}
