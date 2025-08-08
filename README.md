@@ -91,6 +91,7 @@ winget install --scope machine LLVM.LLVM
 
 ## プロジェクト構成
 
+- `android_lib/` - Androidの機能をRustで呼び出せるようにする開発フォルダ
 - `src/` - メインのRustソースコード
 - `src/client/` - クライアント機能
 - `src/server/` - サーバー機能

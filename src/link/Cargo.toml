@@ -1,0 +1,19 @@
+[package]
+name = "ud_link"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "ud_link"
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { version = "1.46.0", features = ["full"] }
+local-ip-address = "0.6.3"
+thiserror = "2.0.0"
+mdns-sd = "0.13.11"
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+zeroconf-tokio = "0.2.0"
+
+
+

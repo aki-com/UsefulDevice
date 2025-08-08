@@ -3,17 +3,14 @@ name = "ud_server"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
+[[bin]]
 name = "ud_server"
-path = "src/lib.rs"
+path = "src/main.rs"
 
 [dependencies]
-zeroconf-tokio = "0.2.0"
-hostname = "0.4.0"
-local-ip-address = "0.6.3"
-widestring = "1.2.0"
-enigo = "0.4.0"
-tokio = { version = "1.45.1", features = ["full"] }
+ud_link = { path = "../link" }
+ud_ctrl = { path = "../ctrl" }
+tokio = { version = "1.47.1", features = ["full"] }
 
 
 
