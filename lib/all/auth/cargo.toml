@@ -1,0 +1,11 @@
+[package]
+name = "ud_auth"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "ud_auth"
+path = "src/lib.rs"
+
+[dependencies]
+windows = { version = "0.61.3", features = ["Security_Credentials_UI", "Foundation"] }
