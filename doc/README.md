@@ -1,6 +1,6 @@
  
 
- <img src="horizontallockup_primary_JWbDwnP.png" alt="logo" width="120">
+ <img src="img/horizontallockup_primary_JWbDwnP.png" alt="logo" width="120">
 
 # UsefulDevice
 
