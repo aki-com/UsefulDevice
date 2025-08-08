@@ -49,39 +49,3 @@ export component DirectoryIcon inherits  Rectangle{
          */
     }
 }
-
-
-//暇で製作途中
-export component PictureIcon inherits  Rectangle{
-    width: 200px;
-    height: 200px;
-
-
-    Path{//大枠
-        fill:#fff;
-        commands:"";
-    }
-
-    Path{//太陽
-        fill:#fff;
-        commands:"";
-    }
-
-    Path{//山
-        fill:#fff;
-        commands:"";
-    }
-
-
-
-    Path{//外側
-        stroke:#333;
-        stroke-width:0.8px;
-
-        commands: "M0 0 H24 L36 12 H0 V0 Z M0 12 H64 V56 H0 V12 Z"; 
-        /*
-         * M0 0 H24 L36 12 H0 V0 Z
-         * M0 12 H64 V56 H0 V12 Z
-         */
-    }
-}
