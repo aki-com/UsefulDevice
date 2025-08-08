@@ -36,6 +36,15 @@ export global File_Data{
     ];
 }
 
+export struct texts{
+    values:[string]
+} 
+
+export struct point{
+    x: int,
+    y: int,
+}
+
 /*
 <やること>
 ストレージUIの実装
@@ -92,7 +101,22 @@ export component AppWindow inherits Window {
     in-out property <string> current_directory_path:"PC:\\user";
     in-out property <string> search_IP_address:"";
 
-    in-out property <length> Square_size : min(root.width,root.height);
+
+    in-out property <point> buttons_num:{x:3,y:4};
+    in-out property <[texts]> command_texts: [
+        {values:["ctrl+Shift+Esc","win+e","Prtsc"]},
+        {values:["Ctrl+s","Ctrl+p","win+i"]},
+        {values:["Ctrl+c","Ctrl+v","Ctrl+a"]},
+        {values:["mute","volup","voldown"]},
+    ];
+        
+    in-out property <[texts]> button_texts: [
+        {values:["T M","Explorer","Ptr Sc"]},
+        {values:["Ctrl+S","Ctrl+P","Win+i"]},
+        {values:["Copy","Paste","Ctrl+A"]},
+        {values:["mute","＋","ー"]},
+    ];
+
     in-out property <string> platform;
     in-out property <[Device]> devices;
     preferred-width: 100%;
@@ -102,8 +126,8 @@ export component AppWindow inherits Window {
 
     Rectangle {
         // 背景いっぱいに広げる
-        width: parent.width;
-        height: parent.height;
+        width: root.width;
+        height: root.height;
 
 
         Text {
@@ -114,15 +138,41 @@ export component AppWindow inherits Window {
             color: #cccccc; // 半透明っぽく見えるグレー
         }
     }
+
     TabWidget {
         //Home
         Tab{
             title:"Home";
+
+            VerticalBox {
+                alignment: center;
+                spacing: 0px;
+                padding: 0px;
+                for i in buttons_num.y:HorizontalBox{
+                    alignment: center;
+                    spacing: 8px;
+                    padding: 4px;
+                    for j in buttons_num.x:Button {
+                        text: button_texts[i].values[j];
+                        width: min(root.width * 0.25, root.height * 0.25);
+                        height: min(root.width * 0.25, root.height * 0.25);
+
+                        clicked => {
+                            // コマンドを送信
+                            root.cmd_send(command_texts[i].values[j]);
+                        }
+                    }
+                }
+            }
+
+
+
+
+            /*
             VerticalBox{//縦方向中央揃え
                 alignment: center;
                 HorizontalBox {//横方向中央揃え
                     alignment:center;
-
                     GridLayout{
                         spacing:8px;
 
@@ -131,7 +181,7 @@ export component AppWindow inherits Window {
                                 text: "T M";
                                 width: Square_size * 0.25;
                                 height: Square_size * 0.25;
-                    
+
                                     clicked => {
                                         root.cmd_send("ctrl+Shift+Esc");
                                     }
@@ -242,9 +292,9 @@ export component AppWindow inherits Window {
                             }
                         }
                     }
-
                 }//横方向中央揃え
             }//縦方向中央揃え
+            */
         }
         //server
         Tab {
@@ -254,7 +304,6 @@ export component AppWindow inherits Window {
                 HorizontalBox {
                     alignment: center;
                     preferred-height: 50px;
-                    preferred-width: 100%;
                     LineEdit{
                         width:75%;
                         accessible-placeholder-text: "IPアドレスを入力";
@@ -302,7 +351,6 @@ export component AppWindow inherits Window {
                 HorizontalBox {
                     alignment: center;
                     preferred-height: 50px;
-                    preferred-width: 100%;
                     LineEdit{
                         width:75%;
                         text:current_directory_path;
@@ -412,9 +460,9 @@ export component device_search inherits Dialog {
         ListView {
             for data in devices: Rectangle {
                 preferred-height: 50px;
-                preferred-width: 100%;
+                preferred-width: Square_size * 0.25;
                 Button {
-                    width: 100%;
+                    width: Square_size * 0.25;
                     text: data.device_name + "                " + data.IP_address;
                     clicked => {}
 

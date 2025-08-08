@@ -1,80 +1,81 @@
-use slint::{ModelRc, SharedString, Weak};
-use std::net::IpAddr;
+use slint::{ModelRc, Weak};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use crate::{AppWindow, Device};
-use ud_client::Client;
+use ud_link::{discover_devices, TcpConnection};
 
-#[derive(Clone)]
-pub struct AppState {
-    pub client: Arc<Mutex<Option<Client>>>,
+// グローバルな接続状態
+static CONNECTION: std::sync::OnceLock<Arc<Mutex<Option<TcpConnection>>>> = std::sync::OnceLock::new();
+
+fn get_connection() -> &'static Arc<Mutex<Option<TcpConnection>>> {
+    CONNECTION.get_or_init(|| Arc::new(Mutex::new(None)))
 }
-
-impl AppState {
-    pub fn new() -> Self {
-        Self {
-            client: Arc::new(Mutex::new(None)),
-        }
-    }
-}
-
-async fn get_device() -> Vec<Device> {
-    let raw = Client::get_servers().await;
-
-    raw.into_iter().map(|(_, (name, ip, _))| Device {
-        device_name: name.into(),
-        IP_address: ip.to_string().into(),
-    }).collect()
-}
-
-
 
 pub fn list_update(ui_weak: Weak<AppWindow>) {
-
-    // Use spawn_local for tasks that aren't Send
-    tokio::task::spawn(async move {
-        let device = get_device().await;
-            let _ = slint::invoke_from_event_loop(move || {
-            let model = ModelRc::new(slint::VecModel::from(device));
-            ui_weak.unwrap().set_devices(model);
+    tokio::spawn(async move {
+        let devices_result = discover_devices(1.5).await;
+        let devices: Vec<Device> = match devices_result {
+            Ok(device_list) => device_list.into_iter().map(|device| Device {
+                device_name: device.name.into(),
+                IP_address: device.addr.ip().to_string().into(),
+            }).collect(),
+            Err(e) => {
+                eprintln!("デバイス検索エラー: {}", e);
+                Vec::new()
+            }
+        };
+        let _ = slint::invoke_from_event_loop(move || {
+            if let Some(ui) = ui_weak.upgrade() {
+                let model = ModelRc::new(slint::VecModel::from(devices));
+                ui.set_devices(model);
+            }
         });
     });
-
 }
-    
-pub fn server_connecting(index: Device, state: &AppState) {
-    let Device { device_name, IP_address } = index;
-    let name = device_name.to_string();
-    let ip: IpAddr = match IP_address.to_string().parse() {
-        Ok(ip) => ip,
-        Err(_) => {
-            eprintln!("Invalid IP address: {}", IP_address);
-            return;
-        }
-    };
-    let port = 5000;
 
-    println!("Connecting to server: {} {} {}", name, ip, port);
-    let client_ref = state.client.clone();
+pub fn server_connecting(index: crate::Device) {
+    let ip_str = index.IP_address.to_string();
+    let addr = format!("{}:5000", ip_str);
+    
     tokio::spawn(async move {
-        if let Ok(client) = Client::connect((name, ip, port)).await {
-            *client_ref.lock().await = Some(client);
+        match addr.parse() {
+            Ok(socket_addr) => {
+                match TcpConnection::connect(socket_addr).await {
+                    Ok(connection) => {
+                        let conn_arc = get_connection();
+                        let mut conn_guard = conn_arc.lock().await;
+                        *conn_guard = Some(connection);
+                        println!("接続完了");
+                    },
+                    Err(e) => {
+                        eprintln!("接続エラー: {}", e);
+                    }
+                }
+            },
+            Err(e) => {
+                eprintln!("アドレス解析エラー: {}", e);
+            }
         }
     });
 }
 
-
-pub fn cmd_send(input: SharedString, state: &AppState) {
+pub fn cmd_send(input: slint::SharedString) {
     let input = input.to_string();
-    println!("Sending command: {}", input);
-    
-    let client_ref = state.client.clone();
     tokio::spawn(async move {
-        if let Some(ref mut client) = *client_ref.lock().await {
-            let _: Result<String, String> = client.send_command(&input).await;
+        let connection = get_connection();
+        let mut conn_guard = connection.lock().await;
+        if let Some(ref mut connection) = *conn_guard {
+            match connection.send_line(&input).await {
+                Ok(_) => {
+                    println!("コマンド送信完了: {}", input);
+                },
+                Err(e) => {
+                    eprintln!("コマンド送信エラー: {}", e);
+                }
+            }
         } else {
-            println!("Not connected to server");
+            eprintln!("接続されていません");
         }
     });
 }
