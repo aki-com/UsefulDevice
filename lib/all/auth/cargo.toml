@@ -7,5 +7,5 @@ edition = "2021"
 name = "ud_auth"
 path = "src/lib.rs"
 
-[dependencies]
+[target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.61.3", features = ["Security_Credentials_UI", "Foundation"] }
