@@ -1,3 +1,6 @@
+/// Windows Hello / PIN 認証を実行する関数
+/// 認証に成功したら true を返す
+#[cfg(target_os = "windows")]
 use windows::{
     core::Result,
     Security::Credentials::UI::{
@@ -7,9 +10,6 @@ use windows::{
     },
 };
 
-/// Windows Hello / PIN 認証を実行する関数
-/// 認証に成功したら true を返す
-#[cfg(target_os = "windows")]
 pub async fn verify_user(message: &str) -> Result<bool> {
     // Windows Hello の利用可否を確認
     let availability = UserConsentVerifier::CheckAvailabilityAsync()?.get()?;
