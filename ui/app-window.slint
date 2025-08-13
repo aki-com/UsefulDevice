@@ -92,17 +92,27 @@ Storageの現在のclickなどのcallback(Rustで記述？)
 */
 
 export component AppWindow inherits Window {
+    //コールバック
     callback list_update();
     callback server_connecting(Device);
     callback cmd_send(string);
 
+    //フォントサイズ
     in-out property <length> file_font_size:15px;
 
+    //現在のディレクトリパス
     in-out property <string> current_directory_path:"PC:\\user";
+    
+    //IPアドレスの検索テキスト
     in-out property <string> search_IP_address:"";
 
-
+    //ボタンの数
     in-out property <point> buttons_num:{x:3,y:4};
+
+    //タブの番号
+    in-out property <int> tab_num:0;
+    
+    //コマンドのテキスト
     in-out property <[texts]> command_texts: [
         {values:["ctrl+Shift+Esc","win+e","Prtsc"]},
         {values:["Ctrl+s","Ctrl+p","win+i"]},
@@ -110,6 +120,7 @@ export component AppWindow inherits Window {
         {values:["mute","volup","voldown"]},
     ];
         
+    //ボタンのテキスト
     in-out property <[texts]> button_texts: [
         {values:["T M","Explorer","Ptr Sc"]},
         {values:["Ctrl+S","Ctrl+P","Win+i"]},
@@ -117,6 +128,7 @@ export component AppWindow inherits Window {
         {values:["mute","＋","ー"]},
     ];
 
+    //プラットフォーム名
     in-out property <string> platform;
     in-out property <[Device]> devices;
     preferred-width: 100%;
@@ -124,12 +136,11 @@ export component AppWindow inherits Window {
     min-height: 600px;
     min-width: 300px;
 
+    // プラットフォーム名
     Rectangle {
         // 背景いっぱいに広げる
         width: root.width;
         height: root.height;
-
-
         Text {
             text: root.platform;
             x: parent.width / 2 - self.width / 2;
@@ -138,313 +149,276 @@ export component AppWindow inherits Window {
             color: #cccccc; // 半透明っぽく見えるグレー
         }
     }
-
-    TabWidget {
-        //Home
-        Tab{
-            title:"Home";
-
-            VerticalBox {
-                alignment: center;
-                spacing: 0px;
-                padding: 0px;
-                for i in buttons_num.y:HorizontalBox{
+    
+    //メインコンテンツ
+    VerticalBox {
+        spacing: 0px;
+        padding: 0px;
+        // タブのコンテンツ
+        Rectangle {
+            width: 100%;
+            //Home
+            if tab_num==0 :Rectangle{
+                VerticalBox {
                     alignment: center;
-                    spacing: 8px;
-                    padding: 4px;
-                    for j in buttons_num.x:Button {
-                        text: button_texts[i].values[j];
-                        width: min(root.width * 0.25, root.height * 0.25);
-                        height: min(root.width * 0.25, root.height * 0.25);
+                    spacing: 0px;
+                    padding: 0px;
+                    for i in buttons_num.y:HorizontalBox{
+                        alignment: center;
+                        spacing: 8px;
+                        padding: 4px;
+                        for j in buttons_num.x:Button {
+                            text: button_texts[i].values[j];
+                            width: min(root.width,root.height)*0.2;
+                            height: min(root.width,root.height)*0.2;
 
-                        clicked => {
-                            // コマンドを送信
-                            root.cmd_send(command_texts[i].values[j]);
+                            clicked => {
+                                // コマンドを送信
+                                root.cmd_send(command_texts[i].values[j]);
+                            }
                         }
                     }
                 }
             }
-
-
-
-
-            /*
-            VerticalBox{//縦方向中央揃え
-                alignment: center;
-                HorizontalBox {//横方向中央揃え
-                    alignment:center;
-                    GridLayout{
-                        spacing:8px;
-
-                        Row{
-                            Button {//TMボタン
-                                text: "T M";
-                                width: Square_size * 0.25;
-                                height: Square_size * 0.25;
-
-                                    clicked => {
-                                        root.cmd_send("ctrl+Shift+Esc");
-                                    }
-                            }
-                            Button {//Explorerボタン
-                                text: "Explorer";
-                                width: Square_size * 0.25;
-                                height: Square_size * 0.25;
-                                
-                                clicked => {
-                                    root.cmd_send("win+e");
-                                }
-                            }
-                            Button {//Ptr Scボタン
-                                text: "Ptr Sc";
-                                width: Square_size * 0.25;
-                                height: Square_size * 0.25;
-                    
-                    
-                                clicked => {
-                                    root.cmd_send("Prtsc");
-                                }
-                            }
-                        }
-                        Row{
-                            Button {//Ctrl+Sボタン
-                                text: "Ctrl+S";
-                                width: Square_size * 0.25;
-                                height: Square_size * 0.25;
-                                
-                                clicked => {
-                                    root.cmd_send("Ctrl+s");
-                                }
-                            }
-                            Button {//Ctrl+Pボタン
-                                text: "Ctrl+P";
-                                width: Square_size * 0.25;
-                                height: Square_size * 0.25;
-                                
-                                clicked => {
-                                    root.cmd_send("Ctrl+p");
-                                }
-                            }
-                            Button {//Win+iボタン
-                                text: "win+i";
-                                width: Square_size * 0.25;
-                                height: Square_size * 0.25;
-                                
-                                clicked => {
-                                    root.cmd_send("win+i");
-                                }
-                            }
-                        }
-                        Row{
-                            Button {//Copyボタン
-                                text: "Copy";
-                                width: Square_size * 0.25;
-                                height: Square_size * 0.25;
-                                
-                                clicked => {
-                                    root.cmd_send("Ctrl+c");            
-                                }
-                            }
-                            Button {//Pasteボタン
-                                text: "Paste";
-                                width: Square_size * 0.25;
-                                height: Square_size * 0.25;
-                                
-                                clicked => {
-                                    root.cmd_send("Ctrl+v");
-                                }
-                            }
-                            Button {//Ctrl+Aボタン
-                                text: "Ctrl+A";
-                                width: Square_size * 0.25;
-                                height: Square_size * 0.25;
-                                
-                                clicked => {
-                                    root.cmd_send("Ctrl+a");
-                                }
-                            }
-                        }
-                        Row{
-                            Button {//muteボタン
-                                text: "mute";
-                                height:Square_size*0.11;
-
-                                clicked => {
-                                    root.cmd_send("mute");
-                                }
-
-                            }
-                            Button{//＋ボタン
-                                text:"＋";
-                                height:Square_size*0.11;
-
-                                clicked => {
-                                    root.cmd_send("volup");
-                                }
-                            }
-                            Button {//ーボタン
-                                text:"ー";
-                                height:Square_size*0.11;
-
-                                clicked => {
-                                    root.cmd_send("voldown");
-                                }
-                            }
-                        }
-                    }
-                }//横方向中央揃え
-            }//縦方向中央揃え
-            */
-        }
-        //server
-        Tab {
-            title:"ServerList";
-            VerticalBox{
-                //検索など
-                HorizontalBox {
-                    alignment: center;
-                    preferred-height: 50px;
-                    LineEdit{
-                        width:75%;
-                        accessible-placeholder-text: "IPアドレスを入力";
-
-                        edited(text) =>{
-                            root.search_IP_address=text;
-                        }
-                    }
-                    Button{
-                        text:"検索";
-
-                        clicked =>{
-                            //処理
-                            debug("clicked:"+root.search_IP_address);
-                        }
-                    }
-                }
-                ListView {
-                    for data in devices: Rectangle {
+            //server
+            if tab_num==1 :Rectangle{
+                VerticalBox{
+                    //検索など
+                    HorizontalBox {
+                        width: 100%;
+                        alignment: center;
                         preferred-height: 50px;
-                        preferred-width: 100%;
-                        Button {
-                            width: 100%;
-                            text: data.device_name + "                " + data.IP_address;
-                            clicked => {
-                                root.server_connecting(data);
+                        spacing: 8px;
+                        LineEdit{
+                            width: parent.width - 90px - 8px - 12px;
+                            accessible-placeholder-text: "IPアドレスを入力";
+                            edited(text) =>{
+                                root.search_IP_address=text;
+                            }
+                        }
+                        Button{
+                            width: 90px;
+                            text:"検索";
+                            clicked =>{
+                                //処理
+                                debug("clicked:"+root.search_IP_address);
                             }
                         }
                     }
-                }
-                Button {
-                    text: "更新";
-                    width:100%;
-                    clicked => {
-                        root.list_update();
-                    }
-                }
-            }
-        }
-        //Storage
-        Tab {
-            title:"Storage";
-            VerticalBox{
-                //検索など
-                HorizontalBox {
-                    alignment: center;
-                    preferred-height: 50px;
-                    LineEdit{
-                        width:75%;
-                        text:current_directory_path;
-
-                        edited(text) =>{
-                            root.current_directory_path=text;
-                        }
-                    }
-                    Button{
-                        text:"検索";
-
-                        clicked =>{
-                            //処理
-                            debug("clicked:"+root.current_directory_path);
-                        }
-                    }
-                }
-                //"[NAME][SIZE]"の表示
-                GridBox {
-                    Text {
-                        horizontal-alignment:left;
-                        vertical-alignment:center;
-                        font-size:file_font_size*1.1;
-                        color:#777;
-                        text:"[NAME]";
-                        col:0;
-                        width:50%;
-                    }
-                    Text {
-                        horizontal-alignment:left;
-                        vertical-alignment:center;
-                        font-size:file_font_size*1.1;
-                        color:#777;
-                        text:"   [SIZE]";
-                        col:1;
-                        width:50%;
-                    }
-                }
-                //ファイル一覧の表示
-                ListView {
-                    for data in File_Data.current_directory_files: Rectangle {
-                        preferred-height: 35px;
-                        background:area.pressed ? #64afff6e : area.has-hover ?  #96dcff70:#ffffff00;
-                        //GridBox {
-                        HorizontalBox {
-                            if data.file_type == FILE_TYPES.file:
-                                FileIcon{}
-                            if data.file_type == FILE_TYPES.directory:
-                                DirectoryIcon{}
-
-                            Text{
-                                horizontal-alignment:left;
-                                vertical-alignment:center;
-                                font-size:file_font_size;
-                                text:data.file_name;
-                                wrap: no-wrap;
-                                overflow: elide;
-                                width: 50%;
-                            }
-                            Text {
-                                horizontal-alignment:left;
-                                vertical-alignment:center;
-                                font-size:file_font_size;
-                                text:data.file_size;
-                                wrap: no-wrap;
-                                overflow: elide;
-                                width: 50%;
-                            }
-                        }
-                        area:=TouchArea{
-                            width: 100%;
-                            mouse-cursor:pointer;
-                            clicked => {
-                                debug("clicked:"+data.file-name);
-                                if data.file_type==FILE-TYPES.file{
-                                    //ファイルのダウンロードや削除の操作
-                                }else if data.file_type==FILE-TYPES.directory{
-                                    current_directory_path+="\\"+data.file_name;//(仮)
+                    ListView {
+                        for data in devices: Rectangle {
+                            preferred-height: 50px;
+                            preferred-width: 100%;
+                            Button {
+                                width: 100%;
+                                text: data.device_name + "                " + data.IP_address;
+                                clicked => {
+                                    root.server_connecting(data);
                                 }
                             }
                         }
                     }
+                    Button {
+                        text: "更新";
+                        width:100%;
+                        clicked => {
+                            root.list_update();
+                        }
+                    }
                 }
-                //更新ボタン
-                Button {
-                    text: "更新";
-                    width:100%;
-                    clicked => {
-                        //ファイルを更新
+            }
+            //Storage
+            if tab_num==2 :Rectangle{
+                VerticalBox{
+                    //検索など
+                    HorizontalBox {
+                        width: 100%;
+                        alignment: center;
+                        preferred-height: 50px;
+                        spacing: 8px;
+                        LineEdit{
+                            width: parent.width - 90px - 8px - 12px;
+                            text:current_directory_path;
+                            edited(text) =>{
+                                root.current_directory_path=text;
+                            }
+                        }
+                        Button{
+                            width: 90px;
+                            text:"検索";
+                            clicked =>{
+                                //処理
+                                debug("clicked:"+root.current_directory_path);
+                            }
+                        }
+                    }
+                    //"[NAME][SIZE]"の表示
+                    GridBox {
+                        Text {
+                            horizontal-alignment:left;
+                            vertical-alignment:center;
+                            font-size:file_font_size*1.1;
+                            color:#777;
+                            text:"[NAME]";
+                            col:0;
+                            width:50%;
+                        }
+                        Text {
+                            horizontal-alignment:left;
+                            vertical-alignment:center;
+                            font-size:file_font_size*1.1;
+                            color:#777;
+                            text:"   [SIZE]";
+                            col:1;
+                            width:50%;
+                        }
+                    }
+                    //ファイル一覧の表示
+                    ListView {
+                        for data in File_Data.current_directory_files: Rectangle {
+                            preferred-height: 35px;
+                            background:area.pressed ? #64afff6e : area.has-hover ?  #96dcff70:#ffffff00;
+                            //GridBox {
+                            HorizontalBox {
+                                if data.file_type == FILE_TYPES.file:
+                                    FileIcon{}
+                                if data.file_type == FILE_TYPES.directory:
+                                    DirectoryIcon{}
+
+                                Text{
+                                    horizontal-alignment:left;
+                                    vertical-alignment:center;
+                                    font-size:file_font_size;
+                                    text:data.file_name;
+                                    wrap: no-wrap;
+                                    overflow: elide;
+                                    width: 50%;
+                                }
+                                Text {
+                                    horizontal-alignment:left;
+                                    vertical-alignment:center;
+                                    font-size:file_font_size;
+                                    text:data.file_size;
+                                    wrap: no-wrap;
+                                    overflow: elide;
+                                    width: 50%;
+                                }
+                            }
+                            area:=TouchArea{
+                                width: 100%;
+                                mouse-cursor:pointer;
+                                clicked => {
+                                    debug("clicked:"+data.file-name);
+                                    if data.file_type==FILE-TYPES.file{
+                                        //ファイルのダウンロードや削除の操作
+                                    }else if data.file_type==FILE-TYPES.directory{
+                                        current_directory_path+="\\"+data.file_name;//(仮)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    //更新ボタン
+                    Button {
+                        text: "更新";
+                        width:100%;
+                        clicked => {
+                            //ファイルを更新
+                        }
                     }
                 }
             }
         }
-    }   
+        //タブの表示
+        HorizontalBox {
+            spacing: 0px;
+            padding: 0px;
+            height:54px;
+            width: 100%;
+            // Homeタブ
+            Rectangle {
+                background: tab_num == 0 ? #fafafa : HomeTabButton.has-hover ? #eeeeee : #f3f3f3;
+                border-width: 1px;
+                border-color: tab_num == 0 ? #a3a3a3 : #cccccc;
+                HomeTabButton := TouchArea {
+                    width: parent.width;
+                    height: parent.height;
+                    mouse-cursor: pointer;
+                    clicked => {
+                        tab_num = 0;
+                    }
+                }
+                Text {
+                    text: "Home";
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    font-size: tab_num == 0 ? 22px : 20px;
+                    color:#444;
+                    y: parent.height / 2 - self.height / 2;
+                }
+            }
+            // Serverタブ
+            Rectangle {
+                background: tab_num == 1 ? #fafafa : ServerTabButton.has-hover ? #eeeeee : #f3f3f3;
+                border-width: 1px;
+                border-color: tab_num == 1 ? #a3a3a3 : #cccccc;
+                ServerTabButton := TouchArea {
+                    width: parent.width;
+                    height: parent.height;
+                    mouse-cursor: pointer;
+                    clicked => {
+                        tab_num = 1;
+                    }
+                }
+                Text {
+                    text: "Server";
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    font-size: tab_num == 1 ? 22px : 20px;
+                    color: #444;
+                    y: parent.height / 2 - self.height / 2;
+                }
+                // 左端に区切り線
+                Rectangle {
+                    x: 0px;
+                    width: 1px;
+                    height: parent.height * 0.6;
+                    y: parent.height * 0.2;
+                    background: #cccccc;
+                }
+            }
+            // Storageタブ
+            Rectangle {
+                background: tab_num == 2 ? #fafafa : StorageTabButton.has-hover ? #eeeeee : #f3f3f3;
+                border-width: 1px;
+                border-color: tab_num == 2 ? #a3a3a3 : #cccccc;
+                StorageTabButton := TouchArea {
+                    width: parent.width;
+                    height: parent.height;
+                    mouse-cursor: pointer;
+                    clicked => {
+                        tab_num = 2;
+                    }
+                }
+                Text {
+                    text: "Storage";
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    font-size: tab_num == 2 ? 22px : 20px;
+                    color:#444;
+                    y: parent.height / 2 - self.height / 2;
+                }
+                // 左端に区切り線
+                Rectangle {
+                    x: 0px;
+                    width: 1px;
+                    height: parent.height * 0.6;
+                    y: parent.height * 0.2;
+                    background: #cccccc;
+                }
+            }
+        }
+    }
 }
 /*
 export component device_search inherits Dialog {
