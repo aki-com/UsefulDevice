@@ -11,6 +11,7 @@ path = "src/main.rs"
 [dependencies]
 ud_link = {path = "lib/all/link" }
 ud_ctrl = {path = "lib/all/ctrl" }
+ud_auth = {path = "lib/all/auth" }
 #ud_server = {path = "src/server" }
 tokio = { version = "1.46.0", features = ["full"] }
 

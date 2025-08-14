@@ -4,6 +4,7 @@ mod slint_fanc;
 use slint_fanc::{list_update, server_connecting, cmd_send};
 
 use std::error::Error;
+use ud_auth::start_auth;
 
 slint::include_modules!();
 
@@ -14,6 +15,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let ui = AppWindow::new().unwrap();
     let ui_weak = ui.as_weak();
     ui.set_platform(std::env::consts::OS.into());
+    start_auth();
 
     ui.on_list_update(move || {
         let ui_weak = ui_weak.clone();
