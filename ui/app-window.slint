@@ -96,6 +96,7 @@ export component AppWindow inherits Window {
     callback list_update();
     callback server_connecting(Device);
     callback cmd_send(string);
+    callback auth_sys();
 
     //フォントサイズ
     in-out property <length> file_font_size:15px;

@@ -4,6 +4,6 @@ fn main() {
     // macOS用の認証ライブラリをリンク
     #[cfg(target_os = "macos")]
 {
-        println!("cargo:rustc-link-arg=lib/all/auth/src/mac/libauthenticate.a");
+        println!("cargo:rustc-link-arg=lib/auth/src/mac/libauthenticate.a");
     }
 }

@@ -18,6 +18,46 @@ mod android;
 #[cfg(target_os = "android")]
 pub use android::*;
 
-pub fn start_auth() {
-    start_biometric_auth()
+pub async fn start_auth() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        mac::start_biometric_auth().await
+    }
+    
+    #[cfg(target_os = "windows")]
+    {
+        false // TODO
+    }
+    
+    #[cfg(target_os = "ios")]
+    {
+        false // TODO
+    }
+    
+    #[cfg(target_os = "android")]
+    {
+        false // TODO
+    }
+}
+
+pub async fn start_auth_async() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        mac::start_biometric_auth().await
+    }
+    
+    #[cfg(target_os = "windows")]
+    {
+        false // TODO
+    }
+    
+    #[cfg(target_os = "ios")]
+    {
+        false // TODO
+    }
+    
+    #[cfg(target_os = "android")]
+    {
+        false // TODO
+    }
 }

@@ -4,11 +4,12 @@ use tokio::sync::Mutex;
 
 use crate::{AppWindow, Device};
 use ud_link::{discover_devices, TcpConnection};
+use ud_auth::start_auth_async;
 
 // グローバルな接続状態
 static CONNECTION: std::sync::OnceLock<Arc<Mutex<Option<TcpConnection>>>> = std::sync::OnceLock::new();
 
-fn get_connection() -> &'static Arc<Mutex<Option<TcpConnection>>> {
+fn get_connection() -> &'static Arc<Mutex<Option<TcpConnection>>>{
     CONNECTION.get_or_init(|| Arc::new(Mutex::new(None)))
 }
 
@@ -78,5 +79,14 @@ pub fn cmd_send(input: slint::SharedString) {
             eprintln!("接続されていません");
         }
     });
+}
+
+pub fn auth_sys(ui_weak: Weak<AppWindow>) -> tokio::task::JoinHandle<bool> {
+    tokio::spawn(async move {
+        println!("認証スレッド開始");
+        let success = start_auth_async().await;
+        println!("認証完了: {}", success);
+        success
+    })
 }
 
