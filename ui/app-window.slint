@@ -11,7 +11,7 @@ export global App_Data {
             { device_name: "Device3", IP_address: "e"},
             { device_name: "Device4", IP_address: "e"},
             { device_name: "Device5", IP_address: "e"},
-            ];
+        ];
 }
 
 export global File_Data{
@@ -96,6 +96,7 @@ export component AppWindow inherits Window {
     callback list_update();
     callback server_connecting(Device);
     callback cmd_send(string);
+    callback auth_sys();
 
     //フォントサイズ
     in-out property <length> file_font_size:15px;

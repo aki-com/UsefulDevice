@@ -1,0 +1,21 @@
+[package]
+name = "ud_auth"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+name = "ud_auth"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.61.3", features = ["Security_Credentials_UI", "Foundation"] }
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = "3.3.0"
+libc = "0.2"
+core-foundation = "0.10"
+tokio = { version = "1.47.1", features = ["full"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+jni = "0.21.1"

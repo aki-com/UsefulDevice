@@ -1,7 +1,7 @@
 // Prevent console window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod slint_fanc;
-use slint_fanc::{list_update, server_connecting, cmd_send};
+use slint_fanc::{list_update, server_connecting, cmd_send, auth_sys};
 
 use std::error::Error;
 
@@ -10,14 +10,25 @@ slint::include_modules!();
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+
     
     let ui = AppWindow::new().unwrap();
     let ui_weak = ui.as_weak();
     ui.set_platform(std::env::consts::OS.into());
+    
 
-    ui.on_list_update(move || {
+    ui.on_list_update({
         let ui_weak = ui_weak.clone();
-        list_update(ui_weak);
+        move || {
+            list_update(ui_weak.clone());
+        }
+    });
+    
+    ui.on_auth_sys({
+        let ui_weak = ui_weak.clone();
+        move || {
+            auth_sys(ui_weak.clone());
+        }
     });
 
     ui.on_server_connecting(|index| {
@@ -27,6 +38,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     ui.on_cmd_send(|input| {
         cmd_send(input);
     });
+
+
 
     ui.run()?;
 
