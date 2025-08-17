@@ -21,12 +21,12 @@ pub use android::*;
 pub async fn start_auth() -> bool {
     #[cfg(target_os = "macos")]
     {
-        mac::start_biometric_auth().await
+        mac::auth().await
     }
     
     #[cfg(target_os = "windows")]
     {
-        false // TODO
+        windows::auth("アプリケーションの認証を行ってください").await.unwrap_or(false)
     }
     
     #[cfg(target_os = "ios")]
@@ -43,12 +43,12 @@ pub async fn start_auth() -> bool {
 pub async fn start_auth_async() -> bool {
     #[cfg(target_os = "macos")]
     {
-        mac::start_biometric_auth().await
+        mac::auth().await
     }
     
     #[cfg(target_os = "windows")]
     {
-        false // TODO
+        windows::auth("アプリケーションの認証を行ってください").await.unwrap_or(false)
     }
     
     #[cfg(target_os = "ios")]

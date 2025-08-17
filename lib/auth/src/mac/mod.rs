@@ -16,7 +16,7 @@ extern "C" {
     fn authenticate_biometric(callback: extern "C" fn(c_int));
 }
 
-pub async fn start_biometric_auth() -> bool {
+pub async fn auth() -> bool {
     println!("Rust: 生体認証開始要求");
     
     // リセット
