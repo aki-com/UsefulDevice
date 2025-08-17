@@ -1,5 +1,5 @@
 [package]
-name = "https_file_upload"
+name = "ud_vault"
 version = "0.1.0"
 edition = "2021"
 

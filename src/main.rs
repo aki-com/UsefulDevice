@@ -10,11 +10,14 @@ slint::include_modules!();
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    use crate::slint_fanc::storage_connect;
+
 
     
     let ui = AppWindow::new().unwrap();
     let ui_weak = ui.as_weak();
     ui.set_platform(std::env::consts::OS.into());
+    storage_connect(ui_weak.clone());
     
 
     ui.on_list_update({
