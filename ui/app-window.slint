@@ -1,6 +1,6 @@
 import { Device } from "device_search.slint";
 import { File,FILE_TYPES } from "file.slint";
-import { FileIcon, DirectoryIcon } from "icons.slint";
+import { FileIcon, DirectoryIcon, UploadIcon, DownloadIcon, SearchIcon } from "icons.slint";
 import { Button, StandardButton ,VerticalBox, ListView, HorizontalBox, Slider, TabWidget, LineEdit, SpinBox, GridBox, ScrollView} from "std-widgets.slint";
 
 export global App_Data {
@@ -110,9 +110,12 @@ export component AppWindow inherits Window {
     //ボタンの数
     in-out property <point> buttons_num:{x:3,y:4};
 
-    //タブの番号
+    //現在のタブの番号
     in-out property <int> tab_num:0;
     
+    //検索バーが表示されているか
+    in-out property <bool> search_bar_visible:false;
+
     //コマンドのテキスト
     in-out property <[texts]> command_texts: [
         {values:["ctrl+Shift+Esc","win+e","Prtsc"]},
@@ -231,25 +234,84 @@ export component AppWindow inherits Window {
             //Storage
             if tab_num==2 :Rectangle{
                 VerticalBox{
-                    //検索など
-                    HorizontalBox {
-                        width: 100%;
-                        alignment: center;
-                        preferred-height: 50px;
+                    //ファイルの操作と検索表示ボタン
+                    HorizontalBox{//ボタン
                         spacing: 8px;
-                        LineEdit{
-                            width: parent.width - 90px - 8px - 12px;
-                            text:current_directory_path;
-                            edited(text) =>{
-                                root.current_directory_path=text;
+                        Rectangle{//アップロードボタン
+                            height: 30px;
+                            background: uploadButton.pressed ? #e0e0e0 : uploadButton.has-hover ? #f5f5f5 : #fafafa;
+                            border-width: 1px;
+                            border-color: uploadButton.pressed ? #bdbdbd : uploadButton.has-hover ? #e0e0e0 : #cccccc;
+                            uploadButton := TouchArea {
+                                width: parent.width;
+                                height: parent.height;
+                                mouse-cursor: pointer;
+                                UploadIcon{}
+                                clicked =>{
+                                    //処理
+                                    debug("clicked:upload");
+                                }
                             }
                         }
-                        Button{
-                            width: 90px;
-                            text:"検索";
-                            clicked =>{
-                                //処理
-                                debug("clicked:"+root.current_directory_path);
+                        
+                        Rectangle{//ダウンロードボタン
+                            height: 30px;
+                            background: downloadButton.pressed ? #e0e0e0 : downloadButton.has-hover ? #f5f5f5 : #fafafa;
+                            border-width: 1px;
+                            border-color: downloadButton.pressed ? #bdbdbd : downloadButton.has-hover ? #e0e0e0 : #cccccc;
+                            downloadButton := TouchArea{
+                                width: parent.width;
+                                height: parent.height;
+                                mouse-cursor: pointer;
+                                DownloadIcon{}
+                                clicked =>{
+                                    //処理
+                                    debug("clicked:download");
+                                }
+                            }
+                        }
+                        Rectangle{//検索ボタン
+                            height: 30px;
+                            background: searchButton.pressed ? #e0e0e0 : searchButton.has-hover ? #f5f5f5 : #fafafa;
+                            border-width: 1px;
+                            border-color: searchButton.pressed ? #bdbdbd : searchButton.has-hover ? #e0e0e0 : #cccccc;
+                            searchButton :=TouchArea{
+                                width: parent.width;
+                                height: parent.height;
+                                mouse-cursor: pointer;
+                                SearchIcon{}
+                                clicked =>{
+                                    //処理
+                                    debug("clicked:Search");
+                                    if search_bar_visible{
+                                        search_bar_visible=false;
+                                    }else{
+                                        search_bar_visible=true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if search_bar_visible: Rectangle{//検索バー
+                        HorizontalBox {
+                            width: 100%;
+                            alignment: center;
+                            preferred-height: 50px;
+                            spacing: 8px;
+                            LineEdit{
+                                width: parent.width - 90px - 8px - 12px;
+                                text:current_directory_path;
+                                edited(text) =>{
+                                    root.current_directory_path=text;
+                                }
+                            }
+                            Button{
+                                width: 90px;
+                                text:"検索";
+                                clicked =>{
+                                    //処理
+                                    debug("clicked:"+root.current_directory_path);
+                                }
                             }
                         }
                     }
@@ -330,7 +392,7 @@ export component AppWindow inherits Window {
                 }
             }
         }
-        //タブの表示
+        //タブ切り替えの表示
         HorizontalBox {
             spacing: 0px;
             padding: 0px;

@@ -49,3 +49,34 @@ export component DirectoryIcon inherits  Rectangle{
          */
     }
 }
+
+export component UploadIcon inherits  Rectangle{
+    width: 20px;
+    height: 20px;
+    Path{
+        fill:#333;
+
+        commands: "M0 63 V58 H29 V8 L11 26 L8 23 L32 0 L55 23 L52 26 L34 8 V58 H63 V63 H0 Z";
+    }
+}
+
+export component DownloadIcon inherits  Rectangle{
+    width: 20px;
+    height: 20px;
+    Path{
+        fill:#333;
+
+        commands: "M0 63 V58 H31 L8 35 L12 31 L30 49 V0 H35 V49 L53 31 L56 34 L33 58 H63 V63 H0 Z";
+    }
+}
+
+export component SearchIcon inherits  Rectangle{
+    width: 20px;
+    height: 20px;
+    Path{
+        stroke:#333;
+        stroke-width:3px;
+
+        commands: "M0 0 A16 16 0 1 1 32 32 L63 63 L 32 32 A16 16 0 1 1 0 0 Z";
+    }
+}
