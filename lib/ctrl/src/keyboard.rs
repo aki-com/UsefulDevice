@@ -32,7 +32,7 @@ fn string_to_key(input: &str) -> Option<Key> {
 }
 
 /// キーの組み合わせを送信する
-pub fn send_key_combination(keys: &[&str]) -> Result<(), String> {
+pub fn exe_key_combination(keys: &[&str]) -> Result<(), String> {
     let mut enigo = Enigo::new(&Default::default()).map_err(|e| e.to_string())?;
 
     // キーを押す

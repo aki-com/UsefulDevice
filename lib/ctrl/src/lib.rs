@@ -12,6 +12,6 @@ pub async fn send_command(stream: &mut TcpStream, input: &str) -> Result<String,
 }
 
 /// キーの組み合わせを送信
-pub fn send_key_combination(keys: &[&str]) -> Result<(), String> {
-    keyboard::send_key_combination(keys)
+pub fn exe_key(keys: &[&str]) -> Result<(), String> {
+    keyboard::exe_key_combination(keys)
 }

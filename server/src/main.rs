@@ -1,4 +1,4 @@
-use ud_ctrl::send_key_combination;
+use ud_ctrl::exe_key;
 use ud_link::{server_start, connection_accept, register_mdns_service};
 
 #[tokio::main]
@@ -28,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let parts: Vec<&str> = data.split('+').collect();
                     
                     // キーコマンド実行
-                    match send_key_combination(&parts) {
+                    match exe_key(&parts) {
                         Ok(_) => println!("Key combination executed successfully"),
                         Err(e) => eprintln!("Failed to execute key combination: {}", e),
                     }
