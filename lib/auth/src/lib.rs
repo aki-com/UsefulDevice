@@ -62,16 +62,13 @@ pub async fn start_auth_async() -> bool {
     }
 }
 
-    use robius_authentication::{
+use robius_authentication::{
     AndroidText, BiometricStrength, Context, Policy, PolicyBuilder, Text, WindowsText,
 };
 pub fn auth_all() {
-
-
     let policy: Policy = PolicyBuilder::new()
         .biometrics(Some(BiometricStrength::Strong))
         .password(true)
-        .companion(true)
         .build()
         .unwrap();
 
@@ -82,17 +79,11 @@ pub fn auth_all() {
             description: None,
         },
         apple: "authenticate",
-        windows: WindowsText::new("Title", "Description"),
+        windows: WindowsText::new("Title", "Description").expect("Invalid WindowsText"),
     };
 
-    let callback = |auth_result| {
-        match auth_result {
-            Ok(_)  => log::info!("Authentication success!"),
-            Err(_) => log::error!("Authentication failed!"),
-        }
-    };
-
-    Context::new(())
-        .authenticate(text, &policy, callback)
-        .expect("Authentication failed");
+    match Context::new(()).blocking_authenticate(text, &policy) {
+        Ok(_) => log::info!("Authentication success!"),
+        Err(e) => log::error!("Authentication failed: {:?}", e),
+    }
 }

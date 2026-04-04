@@ -5,8 +5,11 @@ use std::error::Error;
 
 #[derive(Debug, Deserialize)]
 struct LoginResponse {
-    accessToken: String,
-    refreshToken: String,
+    #[serde(rename = "accessToken")]
+    access_token: String,
+    #[serde(rename = "refreshToken")]
+    #[allow(dead_code)]
+    refresh_token: Option<String>,
     // 他のフィールドも必要に応じて
 }
 
@@ -40,7 +43,7 @@ impl VaultToken {
 
         let resp = resp.error_for_status()?;
         let body: LoginResponse = resp.json().await?;
-        self.access_token = Some(body.accessToken);
+        self.access_token = Some(body.access_token);
         Ok(())
     }
 

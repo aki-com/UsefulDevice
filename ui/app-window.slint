@@ -129,7 +129,7 @@ export component AppWindow inherits Window {
         {values:["T M","Explorer","Ptr Sc"]},
         {values:["Ctrl+S","Ctrl+P","Win+i"]},
         {values:["Copy","Paste","Ctrl+A"]},
-        {values:["mute","＋","ー"]},
+        {values:["mute","+","-"]},
     ];
 
     //プラットフォーム名
@@ -204,6 +204,7 @@ export component AppWindow inherits Window {
                             width: 90px;
                             text:"検索";
                             clicked =>{
+                                root.auth_sys();
                                 //処理
                                 debug("clicked:"+root.search_IP_address);
                             }

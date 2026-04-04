@@ -6,6 +6,7 @@ use crate::{AppWindow, Device};
 use ud_link::{discover_devices, TcpConnection};
 use ud_auth::start_auth_async;
 use ud_vault::*;
+use ud_auth::{auth_all};
 
 
 // グローバルな接続状態
@@ -82,11 +83,8 @@ pub fn cmd_send(input: slint::SharedString) {
         }
     });
 }
-pub fn auth_sys(ui_weak: Weak<AppWindow>) -> tokio::task::JoinHandle<bool> {
-    tokio::spawn(async move {
-        let success = start_auth_async().await;
-        success
-    })
+pub fn auth_sys(ui_weak: Weak<AppWindow>) {
+    auth_all();
 }
 
 pub fn storage_connect(ui_weak: Weak<AppWindow>){
