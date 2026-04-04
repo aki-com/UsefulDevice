@@ -1,5 +1,13 @@
 {
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer"
-    }
+    },
+    "xplorer.priorities": [
+        "main.*",
+        "index.*",
+        "app.*",
+        "lib.*",
+        "mod.*",
+        "README.md"
+    ]
 }
