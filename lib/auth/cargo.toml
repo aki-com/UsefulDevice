@@ -24,3 +24,6 @@ tokio = { version = "1.47.1", features = ["full"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 jni = "0.21.1"
+
+[[package.metadata.android.uses_permission]]
+name="android.permission.USE_BIOMETRIC"
